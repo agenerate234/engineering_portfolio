@@ -18,13 +18,20 @@
     box.innerHTML = '<span>Upload this image as<br><strong>' + img.getAttribute('src') + '</strong></span>';
     img.replaceWith(box);
   }
+  /* Same idea for videos: runs when the last <source> fails to load. */
+  function missingVideo(source) {
+    var video = source.parentElement;
+    var box = document.createElement('div');
+    box.className = 'placeholder';
+    box.innerHTML = '<span>Upload this video as<br><strong>' + video.querySelector('source').getAttribute('src') + '</strong></span>';
+    video.replaceWith(box);
+  }
 </script>
 <style>
   /* ============================================================
      SETTINGS: change colours, width and the background photo here
      ============================================================ */
   :root {
-    --hero-image: url("images/hero-background.jpg");  /* your background photo */
 
     --navy:   #0A2342;   /* top bar, footer, headings */
     --deep:   #123E73;   /* mid blue */
@@ -36,7 +43,8 @@
     --line:   #BCCDE0;   /* borders */
     --accent: #1D64C8;   /* links, hover, focus */
 
-    --max: 1600px;       /* how wide the content can get */
+    --max: 1600px;          /* width of the title area */
+    --max-content: 1200px;  /* width of top bar, projects, skills and footer */
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -53,7 +61,8 @@
   }
   a { color: inherit; }
   :focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
-  .wrap { max-width: var(--max); margin: 0 auto; padding: 0 clamp(1.25rem, 4vw, 3rem); }
+  .wrap { max-width: var(--max-content); margin: 0 auto; padding: 0 clamp(1.25rem, 4vw, 3rem); }
+  .hero .wrap { max-width: var(--max); }
 
   /* ---------- Top bar ---------- */
   .topbar {
@@ -67,20 +76,38 @@
   .topbar nav a { text-decoration: none; color: var(--sky); }
   .topbar nav a:hover { color: #fff; }
 
-  /* ---------- Hero with background photo ---------- */
+  /* ---------- Hero with background launch video ---------- */
   .hero {
+    position: relative; overflow: hidden;
     min-height: min(72vh, 680px);
     display: flex; align-items: center;
     padding: 5rem 0 4rem;
     color: #fff;
+    background: var(--navy);   /* shows if the video can't load */
+  }
+  .hero-video {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    object-fit: cover;
+    object-position: center;   /* try "right center" if the rocket gets hidden behind the text */
+  }
+  /* Blue tint and blueprint grid over the video so the text stays readable.
+     Lower the first two opacity values (0.94, 0.80) to show more of the video. */
+  .hero::after {
+    content: ""; position: absolute; inset: 0;
     background:
       linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px) 0 0 / 40px 40px,
       linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px) 0 0 / 40px 40px,
-      linear-gradient(110deg, rgba(10,35,66,0.94) 0%, rgba(18,62,115,0.80) 50%, rgba(29,100,200,0.40) 100%),
-      var(--hero-image) center / cover no-repeat,
-      var(--navy);
+      linear-gradient(110deg, rgba(10,35,66,0.94) 0%, rgba(18,62,115,0.80) 50%, rgba(29,100,200,0.35) 100%);
   }
-  .hero .wrap { width: 100%; }
+  .hero .wrap { width: 100%; position: relative; z-index: 1; }
+  .video-toggle {
+    position: absolute; right: 1.25rem; bottom: 1.25rem; z-index: 2;
+    font: inherit; font-size: 0.8rem; font-weight: 600;
+    color: #fff; background: rgba(10,35,66,0.6);
+    border: 1px solid var(--sky); padding: 0.35rem 0.75rem; cursor: pointer;
+  }
+  .video-toggle:hover { background: rgba(10,35,66,0.9); }
   .hero h1 {
     font-size: clamp(2.5rem, 5.5vw, 4.5rem);
     font-weight: 850;
@@ -191,6 +218,11 @@
   .split { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: 2rem; align-items: start; }
   .text, .split .writeup { max-width: 75ch; }
 
+  /* .stage: up to two images stacked on the left, writing on the right.
+     This is the main layout now; it keeps images a sensible size. */
+  .stage { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); gap: 2rem; align-items: start; }
+  .stack { display: grid; gap: 1.1rem; }
+
   /* Image types: add one of these classes to a <figure>
        (none)   photo, 4:3, cropped to fill
        .render  CAD render, 4:3, whole image shown on white
@@ -201,9 +233,14 @@
     object-fit: cover; border: 1px solid var(--line); background: #fff;
   }
   figure.render img { object-fit: contain; }
+  /* Videos show whole (no cropping), on navy, so phone videos filmed upright still fit */
+  figure video { width: 100%; aspect-ratio: 4 / 3; display: block; object-fit: contain; background: var(--navy); border: 1px solid var(--line); }
+  figure.video .placeholder { aspect-ratio: 4 / 3; }
   figure.sheet img, figure.sheet .placeholder { aspect-ratio: 1.414 / 1; object-fit: contain; }
   figure.wide img, figure.wide .placeholder { aspect-ratio: 16 / 9; }
   figure img { cursor: zoom-in; }
+  /* Inside a stack, uploaded images keep their own shape instead of being cropped */
+  .stack figure img { aspect-ratio: auto; height: auto; max-height: 460px; object-fit: contain; }
   figcaption { margin-top: 0.45rem; font-size: 0.825rem; color: var(--steel); }
 
   .placeholder {
@@ -223,6 +260,7 @@
   .writeup p + p, .text p + p { margin-top: 0.7rem; }
   .writeup ul, .writeup ol, .text ul, .text ol { padding-left: 1.2rem; }
   .writeup li, .text li { margin-bottom: 0.25rem; }
+  .writeup ul + p, .writeup ol + p, .text ul + p, .text ol + p { margin-top: 0.7rem; }
 
   .sub-foot { padding: 0 1.75rem 1.25rem; }
   .sub-foot a, .back { font-size: 0.875rem; color: var(--steel); }
@@ -249,7 +287,7 @@
 
   /* ---------- Tablet and phone ---------- */
   @media (max-width: 860px) {
-    .split { grid-template-columns: 1fr; }
+    .split, .stage { grid-template-columns: 1fr; }
     .project-head { grid-template-columns: 1fr; }
     .title-block { border-left: none; border-top: 1px solid var(--line); }
   }
@@ -279,13 +317,21 @@
 
   <!-- ==================== HERO ==================== -->
   <section class="hero">
+    <!-- Background launch video. Muted is required for autoplay in browsers.
+         The .mp4 is tried first; the .mov is a fallback that works in Safari,
+         and in Chrome only if it was recorded as H.264 ("Most Compatible"). -->
+    <video class="hero-video" id="heroVideo" muted loop playsinline preload="auto" aria-hidden="true">
+      <source src="videos/galah_launch_video.mp4" type="video/mp4">
+      <source src="videos/galah_launch_video.mov" type="video/mp4" onerror="document.getElementById('heroVideo').remove(); document.getElementById('videoToggle').remove();">
+    </video>
+    <button class="video-toggle" id="videoToggle" type="button">Pause video</button>
     <div class="wrap">
       <h1>Andrew Tan</h1>
       <p class="discipline">Mechanical and space engineering student</p>
       <p class="intro">
         I design, build and test flight structures. Most of my time outside class goes into
-        Galah, the USYD Rocketry Team's 10,000 ft hybrid launch vehicle, where I've taken
-        parts from Onshape model to FEA, composite layup and destructive testing.
+        Galah, the USYD Rocketry Team's 10,000 ft hybrid launch vehicle, where I took the
+        aft truss from load definition and CAD through FEA to destructive testing.
       </p>
       <dl class="facts">
         <div><dt>Degree</dt><dd>Bachelor of Engineering Honours (Mechanical with Space)</dd></div>
@@ -308,13 +354,12 @@
       <div class="tile tile-wide">
         <a class="tile-main" href="#galah">
           <span class="title">Galah 2026 rocket</span>
-          <span class="summary">Structures and composites work on the USYD Rocketry Team's 10,000 ft hybrid launch vehicle, as a Flight Systems Engineer.</span>
+          <span class="summary">Designing, simulating and testing the aft truss for the USYD Rocketry Team's 10,000 ft hybrid launch vehicle.</span>
         </a>
         <ul class="sublinks">
-          <li><a href="#aft-truss">Aft truss and chamber adapter plate</a></li>
-          <li><a href="#layups">Airframe, coupler and nose cone layups</a></li>
-          <li><a href="#fea">FEA and ANSYS simulation</a></li>
-          <li><a href="#testing">Destructive testing</a></li>
+          <li><a href="#truss-design">Aft truss design</a></li>
+          <li><a href="#truss-fea">FEA simulation</a></li>
+          <li><a href="#truss-testing">Destructive testing</a></li>
         </ul>
       </div>
       <a class="tile" href="#pneumatic-engine">
@@ -332,6 +377,161 @@
 
   <div class="wrap">
 
+    <!-- ==================== GALAH: AFT TRUSS ==================== -->
+    <article class="project" id="galah">
+      <div class="project-head">
+        <div class="heading">
+          <h2>Galah 2026 rocket: aft truss</h2>
+          <p class="subtitle">USYD Rocketry Team, 10,000 ft hybrid launch vehicle</p>
+        </div>
+        <dl class="title-block">
+          <dt>Role</dt>  <dd>Flight Systems Engineer</dd>
+          <dt>Part</dt>  <dd>Aft truss, 6061-T6 aluminium</dd>
+          <dt>Dates</dt> <dd>Aug 2025 to present</dd>
+          <dt>Tools</dt> <dd>Onshape, ANSYS 2024 R1, Instron 5567</dd>
+        </dl>
+      </div>
+      <div class="content">
+        <div class="text">
+          <p>
+            The aft truss is the three-strut aluminium structure between Galah's oxidiser tank
+            and combustion chamber. I designed it, and this section follows it the whole way:
+            defining the loads, exploring and drawing designs, simulating the final strut in
+            ANSYS, then testing struts to failure to check the simulation.
+          </p>
+        </div>
+      </div>
+
+      <!-- ---------- Step 1: Design ---------- -->
+      <section class="sub" id="truss-design">
+        <div class="sub-head">
+          <h3>Design and loading</h3>
+          <span class="meta">Step 1 of 3, Onshape</span>
+        </div>
+        <div class="content">
+          <div class="stage">
+            <div class="stack">
+              <figure class="render">
+                <img src="images/aft-truss-cad.png" alt="Onshape CAD model of the aft truss" onerror="missingImage(this)">
+                <figcaption>Aft truss CAD model in Onshape.</figcaption>
+              </figure>
+              <figure class="sheet">
+                <img src="images/aft-truss-drawing.png" alt="Engineering drawing of the aft truss strut" onerror="missingImage(this)">
+                <figcaption>Engineering drawing. Click to enlarge.</figcaption>
+              </figure>
+            </div>
+            <div class="writeup">
+              <h4>Defining the load</h4>
+              <p>
+                The three 6061-T6 struts form the structural load path between the combustion
+                chamber and the rest of the vehicle, and the truss also acts as the body coupler
+                joining the airframe sections either side. Before modelling anything, I defined
+                the loads each strut would have to carry.
+              </p>
+              <!-- ADD one or two sentences with your real numbers, e.g.
+                   peak thrust, maximum acceleration, the resulting load per strut,
+                   and the safety factor you were designing to. -->
+              <h4>Exploring designs</h4>
+              <p>
+                I explored several strut designs, drawing up and modelling each option in
+                Onshape before settling on the final geometry.
+              </p>
+              <!-- ADD what the main options were (e.g. solid vs I-section, different
+                   flange shapes) and the reason you chose the final one. -->
+            </div>
+          </div>
+        </div>
+        <div class="sub-foot"><a href="#galah">Back to aft truss overview</a></div>
+      </section>
+
+      <!-- ---------- Step 2: FEA ---------- -->
+      <section class="sub" id="truss-fea">
+        <div class="sub-head">
+          <h3>FEA simulation</h3>
+          <span class="meta">Step 2 of 3, ANSYS 2024 R1</span>
+        </div>
+        <div class="content">
+          <div class="stage">
+            <div class="stack">
+              <figure>
+                <img src="images/fea-safety-factor.png" alt="ANSYS safety factor plot showing a minimum of 1.70 at the fillet between strut web and end flange" onerror="missingImage(this)">
+                <figcaption>Tension load case: minimum safety factor of 1.70 at the web-to-flange fillet.</figcaption>
+              </figure>
+              <figure>
+                <img src="images/fea-deformation.png" alt="ANSYS total deformation plot of a truss strut, peaking at 0.90 mm at the loaded end" onerror="missingImage(this)">
+                <figcaption>Total deformation under tension, peaking at 0.90 mm.</figcaption>
+              </figure>
+            </div>
+            <div class="writeup">
+              <p>
+                I simulated a single strut in ANSYS under a tension load case, with one end
+                flange fixed and the load applied through the other.
+              </p>
+              <h4>Results</h4>
+              <ul>
+                <li>Minimum safety factor of 1.70, at the fillet where the strut web meets the end flange, beside a bolt hole.</li>
+                <li>Maximum total deformation of 0.90 mm, at the loaded end.</li>
+              </ul>
+              <p>
+                I ran a mesh convergence study to make sure the results didn't depend on mesh
+                size, used the results to drive material selection, and wrote up the setup and
+                results as simulation documentation for the team.
+              </p>
+              <!-- ADD the load you applied and the yield strength you used for 6061-T6 -->
+            </div>
+          </div>
+        </div>
+        <div class="sub-foot"><a href="#galah">Back to aft truss overview</a></div>
+      </section>
+
+      <!-- ---------- Step 3: Testing ---------- -->
+      <section class="sub" id="truss-testing">
+        <div class="sub-head">
+          <h3>Destructive testing</h3>
+          <span class="meta">Step 3 of 3, Instron 5567</span>
+        </div>
+        <div class="content">
+          <div class="stage">
+            <div class="stack">
+              <figure>
+                <img src="images/test-static.jpg" alt="Aluminium truss strut bolted between end plates in an Instron 5567 test machine" onerror="missingImage(this)">
+                <figcaption>Static tension test of a truss strut on the Instron 5567.</figcaption>
+              </figure>
+            </div>
+            <div class="writeup">
+              <p>
+                To check the simulation against reality, I wrote the test procedure and tested
+                aluminium truss struts to failure. For the static test, the strut was bolted
+                between two end plates and pulled in tension through the machine's grips.
+              </p>
+              <p>
+                Across the static and dynamic tests I identified three failure modes: yield,
+                buckling and thread shear-out. I then compared the measured failure loads with
+                my FEA predictions to validate the design.
+              </p>
+              <!-- ADD: the static failure load vs the FEA prediction (and % difference),
+                   and whether it failed at the fillet the FEA flagged. This is the
+                   strongest sentence you can put on this page. -->
+            </div>
+          </div>
+        </div>
+        <div class="sub-foot"><a href="#galah">Back to aft truss overview</a></div>
+      </section>
+
+      <div class="project-foot">
+        <div class="btns">
+          <!-- Paste the team's real website or LinkedIn page into href -->
+          <a class="btn" href="#">USYD Rocketry Team</a>
+        </div>
+        <a class="back" href="#projects">Back to projects</a>
+      </div>
+    </article>
+
+    <!-- SAVED FOR LATER: the previous Galah sections (rocket photo overview, chamber
+         adapter plate, layups with the wet layup video, etc.). Nothing inside <template>
+         shows on the site or downloads. To bring a section back, cut it out of here and
+         paste it above the "project-foot" div of the article above. -->
+    <template id="saved-galah-sections">
     <!-- ==================== GALAH ==================== -->
     <article class="project" id="galah">
       <div class="project-head">
@@ -433,13 +633,16 @@
         </div>
         <div class="content">
           <div class="pair">
-            <figure>
-              <img src="images/layup-wet.jpg" alt="Wet layup of a body tube on the mould" onerror="missingImage(this)">
-              <figcaption>Hand wet layup on the mould.</figcaption>
+            <figure class="video">
+              <video controls muted loop playsinline preload="metadata">
+                <source src="videos/layup-wet.mp4" type="video/mp4">
+                <source src="videos/layup-wet.mov" type="video/mp4" onerror="missingVideo(this)">
+              </video>
+              <figcaption>Hand wet layup of a body tube and coupler.</figcaption>
             </figure>
             <figure>
-              <img src="images/layup-vacuum.jpg" alt="Part vacuum bagged during cure" onerror="missingImage(this)">
-              <figcaption>Vacuum bagged for cure.</figcaption>
+              <img src="images/layup-nosecone-vacuum.jpg" alt="Nose cone layup vacuum bagged for cure" onerror="missingImage(this)">
+              <figcaption>Nose cone vacuum bagged for cure.</figcaption>
             </figure>
           </div>
           <div class="text">
@@ -458,8 +661,8 @@
           </div>
           <!-- Large photo underneath the writing -->
           <figure class="wide">
-            <img src="images/layup-finished.jpg" alt="Finished composite airframe sections" onerror="missingImage(this)">
-            <figcaption>Finished body tubes, couplers and nose cone.</figcaption>
+            <img src="images/layup-body-tube-finished.jpg" alt="Finished composite body tube after cure and trimming" onerror="missingImage(this)">
+            <figcaption>Finished body tube layup.</figcaption>
           </figure>
         </div>
         <div class="sub-foot"><a href="#galah">Back to Galah overview</a></div>
@@ -540,6 +743,8 @@
       </div>
     </article>
 
+    </template>
+
     <!-- ==================== PNEUMATIC ENGINE ==================== -->
     <article class="project" id="pneumatic-engine">
       <div class="project-head">
@@ -554,23 +759,17 @@
         </dl>
       </div>
       <div class="content">
-        <!-- CAD and real engine side by side -->
-        <div class="pair">
-          <figure class="render">
-            <img src="images/pneumatic-cad.png" alt="SolidWorks CAD model of the pneumatic engine" onerror="missingImage(this)">
-            <figcaption>SolidWorks CAD model.</figcaption>
-          </figure>
-          <figure>
-            <img src="images/pneumatic-real.jpg" alt="The finished pneumatic engine" onerror="missingImage(this)">
-            <figcaption>The finished engine.</figcaption>
-          </figure>
-        </div>
-        <!-- Assembly drawing beside the writing -->
-        <div class="split">
-          <figure class="sheet">
-            <img src="images/pneumatic-assembly-drawing.png" alt="Assembly drawing of the pneumatic engine" onerror="missingImage(this)">
-            <figcaption>Assembly drawing. Click to enlarge.</figcaption>
-          </figure>
+        <div class="stage">
+          <div class="stack">
+            <figure class="render">
+              <img src="images/pneumatic-cad.png" alt="SolidWorks CAD model of the pneumatic engine" onerror="missingImage(this)">
+              <figcaption>SolidWorks CAD model.</figcaption>
+            </figure>
+            <figure>
+              <img src="images/pneumatic-real.jpg" alt="The finished pneumatic engine" onerror="missingImage(this)">
+              <figcaption>The finished engine.</figcaption>
+            </figure>
+          </div>
           <div class="writeup">
             <h3>Brief</h3>
             <p>Design and build a working double-acting pneumatic engine combining a flywheel and a sliding-valve system.</p>
@@ -586,7 +785,8 @@
       </div>
       <div class="project-foot">
         <div class="btns">
-          <a class="btn" href="files/pneumatic-engine-drawings.pdf">View all drawings (PDF)</a>
+          <a class="btn" href="images/pneumatic-assembly-drawing.png" target="_blank">View assembly drawing</a>
+          <a class="btn" href="files/pneumatic-engine-drawings.pdf" target="_blank">All drawings (PDF)</a>
         </div>
         <a class="back" href="#projects">Back to projects</a>
       </div>
@@ -606,17 +806,18 @@
         </dl>
       </div>
       <div class="content">
-        <div class="pair">
-          <figure class="render">
-            <img src="images/mission-orbit.png" alt="Modelled satellite orbit" onerror="missingImage(this)">
-            <figcaption>Modelled orbit.</figcaption>
-          </figure>
-          <figure class="render">
-            <img src="images/mission-groundtrack.png" alt="Satellite ground track and imaging coverage" onerror="missingImage(this)">
-            <figcaption>Ground track and imaging coverage.</figcaption>
-          </figure>
-        </div>
-        <div class="text">
+        <div class="stage">
+          <div class="stack">
+            <figure class="render">
+              <img src="images/mission-orbit.png" alt="Modelled satellite orbit" onerror="missingImage(this)">
+              <figcaption>Modelled orbit.</figcaption>
+            </figure>
+            <figure class="render">
+              <img src="images/mission-groundtrack.png" alt="Satellite ground track and imaging coverage" onerror="missingImage(this)">
+              <figcaption>Ground track and imaging coverage.</figcaption>
+            </figure>
+          </div>
+          <div class="writeup">
           <h4>Brief</h4>
           <p>Given the requirements for three orbital missions, build software to model each satellite's orbit and imaging.</p>
           <h4>What I did</h4>
@@ -625,6 +826,7 @@
             <li>Completed the orbital mechanics calculations to approximate satellite positions.</li>
             <li>Modelled imaging for each mission against its requirements.</li>
           </ul>
+          </div>
         </div>
       </div>
       <div class="project-foot">
@@ -666,6 +868,30 @@
     img.addEventListener('keydown', function (e) { if (e.key === 'Enter') open(); });
   });
   viewer.addEventListener('click', function () { viewer.close(); });
+
+  /* Hero video: plays automatically unless the visitor has asked their device
+     to reduce motion. The button lets anyone pause or play it. */
+  var hero = document.getElementById('heroVideo');
+  var toggle = document.getElementById('videoToggle');
+  var calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (hero && toggle) {
+    if (calm) { toggle.textContent = 'Play video'; }
+    else { hero.play().catch(function () { toggle.textContent = 'Play video'; }); }
+    toggle.addEventListener('click', function () {
+      if (hero.paused) { hero.play(); toggle.textContent = 'Pause video'; }
+      else { hero.pause(); toggle.textContent = 'Play video'; }
+    });
+  }
+
+  /* Project videos start playing (muted) when scrolled into view and pause when scrolled away */
+  if (!calm && 'IntersectionObserver' in window) {
+    var watcher = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting) { e.target.play().catch(function () {}); } else { e.target.pause(); }
+      });
+    }, { threshold: 0.5 });
+    document.querySelectorAll('.project figure video').forEach(function (v) { watcher.observe(v); });
+  }
 </script>
 </body>
 </html>
