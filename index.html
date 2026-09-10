@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Andrew Tan | Mechanical and Space Engineering Portfolio</title>
+<title>Engineering Portfolio | Andrew Tan</title>
 <meta name="description" content="Engineering projects by Andrew Tan, including structures and composites work on the USYD Rocketry Team's Galah 10,000 ft hybrid launch vehicle.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -12,10 +12,18 @@
   /* If an image file hasn't been uploaded yet, show a labelled box with the
      exact filename to upload instead of a broken image icon. */
   function missingImage(img) {
+    /* data-alts lists other possible filenames (separated by |) to try first */
+    var alts = (img.getAttribute('data-alts') || '').split('|').filter(Boolean);
+    if (!img.dataset.first) img.dataset.first = img.getAttribute('src');
+    if (alts.length) {
+      img.setAttribute('data-alts', alts.slice(1).join('|'));
+      img.src = alts[0];
+      return;
+    }
     img.onerror = null;
     var box = document.createElement('div');
     box.className = 'placeholder';
-    box.innerHTML = '<span>Upload this image as<br><strong>' + img.getAttribute('src') + '</strong></span>';
+    box.innerHTML = '<span>Upload this image as<br><strong>' + decodeURIComponent(img.dataset.first) + '</strong></span>';
     img.replaceWith(box);
     if (window.balanceAll) window.balanceAll();
   }
@@ -94,6 +102,11 @@
       var(--navy);
   }
   .hero .wrap { width: 100%; }
+  .hero .eyebrow {
+    font-size: clamp(0.9rem, 1.3vw, 1.05rem); font-weight: 600;
+    letter-spacing: 0.14em; text-transform: uppercase; color: var(--sky);
+    margin-bottom: 0.6rem;
+  }
   .hero h1 {
     font-size: clamp(2.5rem, 5.5vw, 4.5rem);
     font-weight: 850;
@@ -234,6 +247,11 @@
   .drawings[open] summary { background: var(--navy); color: #fff; }
   .drawing-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 1rem; margin-top: 1.25rem; }
   .drawing-grid figure img, .drawing-grid figure .placeholder { aspect-ratio: 1.414 / 1; object-fit: contain; }
+  /* A single image revealed by a button, shown whole */
+  .reveal-figure { margin-top: 1.25rem; max-width: 900px; }
+  .reveal-figure img { aspect-ratio: auto; height: auto; object-fit: contain; }
+  /* Slimmer focus ring on the reveal buttons (Safari shows it after a click) */
+  .drawings summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
   /* Image types: add one of these classes to a <figure>
        (none)   photo, 4:3, cropped to fill
@@ -336,6 +354,7 @@
   <!-- ==================== HERO ==================== -->
   <section class="hero">
     <div class="wrap">
+      <p class="eyebrow">Engineering Portfolio</p>
       <h1>Andrew Tan</h1>
       <p class="discipline">Mechanical and space engineering student</p>
       <p class="intro">
@@ -345,7 +364,7 @@
       </p>
       <dl class="facts">
         <div><dt>Degree</dt><dd>Bachelor of Engineering Honours (Mechanical with Space)</dd></div>
-        <div><dt>University</dt><dd>The University of Sydney, Dalyell Scholar, 2024 to 2027</dd></div>
+        <div><dt>University</dt><dd>The University of Sydney, Dalyell Scholar, Feb 2024 to Nov 2027</dd></div>
         <div><dt>Citizenship</dt><dd>Australian, New Zealand and Dutch</dd></div>
       </dl>
       <div class="contact">
@@ -374,12 +393,12 @@
       </div>
       <a class="tile" href="#pneumatic-engine">
         <span class="title">Pneumatic engine</span>
-        <span class="summary">Two-cylinder, double-acting engine with a "dog bone" sliding valve, designed in SolidWorks and machined by a team of four.</span>
+        <span class="summary">Two-cylinder, double-acting engine with a "dog bone" sliding valve, designed in SolidWorks and machined on the lathe, mill and drill press.</span>
         <span class="tags">SolidWorks, lathe, mill</span>
       </a>
       <a class="tile" href="#mission-modelling">
         <span class="title">Space mission modelling</span>
-        <span class="summary">Python software modelling three orbital missions for satellite positioning and imaging.</span>
+        <span class="summary">Python orbit tools for a Molniya satellite with J2 perturbations, and the Parker Solar Probe's hyperbolic escape from Earth.</span>
         <span class="tags">Python, orbital mechanics</span>
       </a>
     </div>
@@ -397,7 +416,7 @@
         <dl class="title-block">
           <dt>Role</dt>  <dd>Flight Systems Engineer</dd>
           <dt>Part</dt>  <dd>Aft truss, 6061-T6 aluminium</dd>
-          <dt>Dates</dt> <dd>Aug 2025 to present</dd>
+          <dt>Dates</dt> <dd>Aug 2025 to Oct 2026</dd>
           <dt>Tools</dt> <dd>Onshape, ANSYS 2024 R1, Instron 5567</dd>
         </dl>
       </div>
@@ -466,16 +485,22 @@
               <p>
                 Two cases drive the design: compression from about 4.1 kN of engine thrust during
                 boost, and combined axial and bending load from the 10 kN main parachute deployment.
-                The deployment angle is unknown, so the recovery load was swept across angles; peak
-                stress occurs near 85°, almost side-on to the rocket.
+                The deployment angle is unknown, so I swept the recovery load across angles in
+                MATLAB: as the parachute pulls further off-axis, axial stress falls and bending
+                stress rises, and the combined stress peaks at around 70°.
               </p>
+              <figure>
+                <img src="images/Matlab-recovery-angle_ong.png" data-alts="images/Matlab-recovery-angle.ong|images/Matlab-recovery-angle.png" alt="MATLAB plot of axial, bending and combined truss stress against recovery angle, with combined stress peaking near 70 degrees" onerror="missingImage(this)">
+                <figcaption>Axial, bending and combined stress against parachute deployment angle.</figcaption>
+              </figure>
               <h4>Concepts explored</h4>
               <p>
                 I developed two concepts in a fully parameterised Onshape model. A webbed truss of
                 four diagonal strut pairs, machined as a single part, would have removed the
                 alignment problems of earlier multi-part trusses and handled torsion well. But its
                 thin, curved members left almost no flat faces to mount the datalogger and solenoid
-                valve, so the conventional straight-strut design won.
+                valve, so the conventional straight-strut design won. The webbed concept is shown
+                under the button at the bottom of this step.
               </p>
               <h4>Optimisation</h4>
               <p>
@@ -496,6 +521,15 @@
               </figure>
             </div>
           </div>
+
+          <!-- Webbed truss concept, hidden until the button is clicked -->
+          <details class="drawings">
+            <summary>Show the webbed truss concept</summary>
+            <figure class="reveal-figure">
+              <img src="images/webbed-truss-design.png" alt="Webbed aft truss concept in Onshape, isometric and front views, with four diagonal strut pairs machined as one part" loading="lazy" onerror="missingImage(this)">
+              <figcaption>My webbed truss concept: four diagonal strut pairs machined as a single part, in isometric and front views.</figcaption>
+            </figure>
+          </details>
         </div>
         <div class="sub-foot"><a href="#galah">Back to aft truss overview</a></div>
       </section>
@@ -817,8 +851,7 @@
           <p class="subtitle">Design and Construction of Mechanical Systems (MECH1400)</p>
         </div>
         <dl class="title-block">
-          <dt>Team</dt>     <dd>4 people</dd>
-          <dt>Date</dt>     <dd>Semester 2, 2024</dd>
+          <dt>Date</dt>     <dd>Aug 2024 to Oct 2024</dd>
           <dt>CAD</dt>      <dd>SolidWorks, AS1100 drawings</dd>
           <dt>Workshop</dt> <dd>Lathe, mill, drill press</dd>
         </dl>
@@ -838,39 +871,37 @@
           <div class="writeup">
             <h3>Brief</h3>
             <p>
-              Research, design and build a small compressed-air reciprocating engine from a set list
-              of materials, in 24 workshop hours, running on a constant 50 psi supply and fitting a
+              Design and build a small compressed-air reciprocating engine from a set list of
+              materials, in 24 workshop hours, running on a constant 50 psi supply and fitting a
               200 × 150 mm plywood base.
             </p>
-            <h3>Design</h3>
+            <h3>Design choices</h3>
             <p>
-              We compared wobbler, rocker and sliding-valve layouts and chose a double-acting
-              sliding-valve engine, where air drives the piston on both strokes. On tutor advice we
-              used a "dog bone" valve: a brass rod with two heads that switches which end of the
-              power cylinder is fed and which is exhausted. The piston and valve each run in a 40 mm
-              square mild steel cylinder with a 19.05 mm bore, and two linked Ø80 mm flywheels keep
-              the valve in time with the piston.
+              A double-acting sliding-valve layout was chosen over wobbler and rocker designs, so
+              air drives the piston on both strokes. The "dog bone" valve, a brass rod with two
+              heads, switches which end of the power cylinder is fed and which is exhausted. Two
+              linked Ø80 mm flywheels keep the valve in time with the piston and smooth out the
+              uneven torque, sized as large as the base allowed since stored energy grows with the
+              square of the radius.
             </p>
-            <h3>Analysis</h3>
             <ul>
-              <li>With a wall-to-bore ratio of 0.55, the cylinders are thick-walled, so we used Lamé's equations: a hoop stress of 446 kPa against mild steel's 320 MPa yield strength.</li>
-              <li>Grashof's formula gave a minimum piston head thickness of 0.35 mm; ours is 10 mm.</li>
+              <li>At a wall-to-bore ratio of 0.55 the cylinders are thick-walled, so Lamé's equations apply: a hoop stress of 446 kPa against mild steel's 320 MPa yield strength.</li>
+              <li>Grashof's formula gives a minimum piston head thickness of 0.35 mm; the heads are 10 mm.</li>
               <li>Brass for the piston and valve, since brass on steel has lower friction than steel on steel.</li>
             </ul>
-            <h3>My part</h3>
+            <h3>From CAD to hardware</h3>
             <ul>
-              <li>Selected the materials for the engine.</li>
-              <li>Milled the cylinder end plates from 8 mm to 6 mm, in cuts of 0.5 mm or less, to a 3.2 µm surface finish, then drilled them.</li>
-              <li>Cut, filed and drilled the crank rods, and cut and drilled the mounting brackets.</li>
-              <li>Checked and approved the detail drawings, co-wrote the final report, and wrote the reflective report.</li>
+              <li>Detail drawings to AS1100 hold ±0.4 mm generally, tightening to ±0.1 mm on the bores and rods that slide against each other.</li>
+              <li>The square cylinder bars were centred in a four-jaw chuck by clocking each face, drilled in steps of 8, 12, 15 and 18.5 mm, then reamed to 19.05 mm for a sliding fit.</li>
+              <li>The brass piston and valve were turned from 19.05 mm bar down to 8 mm rods, leaving 10 mm heads.</li>
+              <li>End plates were milled from 8 mm to 6 mm in cuts of 0.5 mm or less, to a 3.2 µm finish that seals flat against the cylinder.</li>
             </ul>
             <h3>What I learnt</h3>
-            <p>
-              Our first set of end plates came off the mill uneven and out of parallel, so we ordered
-              new stock and re-milled them. Lining up four scribed bolt holes with the cylinder was
-              also hit and miss until a demonstrator suggested drilling and bolting one hole first,
-              then using it as the datum for the other three.
-            </p>
+            <ul>
+              <li><strong>Time management.</strong> Workshop hours were the real constraint, and every hour spent settling the design in the workshop came out of machining time. I now fix the design and sizing before workshop time starts, and plan the machining against a Gantt chart.</li>
+              <li><strong>Precision compounds.</strong> End plates that came off the mill out of parallel had to be remade, bolt holes scribed one by one wouldn't line up until one was drilled and bolted first as a datum for the rest, and one slightly misaligned thread left a flywheel sitting off-square.</li>
+              <li><strong>Simplicity pays.</strong> Every extra part is another tolerance to hold. A twin inline wobbler, which times its ports by pivoting the cylinder itself, would have been quicker to make for a similar result.</li>
+            </ul>
             <!-- ADD a sentence on the result: did it run, and how well? -->
             <figure class="sheet">
               <img src="images/pneumatic-assembly-drawing.png" alt="AS1100 assembly drawing of the pneumatic engine with sections and parts list" onerror="missingImage(this)">
@@ -920,7 +951,7 @@
               <figcaption>Valve (4-9)</figcaption>
             </figure>
             <figure>
-              <img src="pneumatic-engine-drawings/flywheel-conrod.png" alt="Detail drawing: Flywheel conrod" loading="lazy" onerror="missingImage(this)">
+              <img src="pneumatic-engine-drawings/flywheel-conrod.png" data-alts="pneumatic-engine-drawings/flywheel-conrod.ong" alt="Detail drawing: Flywheel conrod" loading="lazy" onerror="missingImage(this)">
               <figcaption>Flywheel conrod (4-10)</figcaption>
             </figure>
             <figure>
@@ -960,32 +991,59 @@
           <p class="subtitle">Space Engineering 1 (AERO2705)</p>
         </div>
         <dl class="title-block">
-          <dt>Date</dt>     <dd>Aug 2025</dd>
+          <dt>Date</dt>     <dd>Sep 2025</dd>
           <dt>Language</dt> <dd>Python</dd>
-          <dt>Scope</dt>    <dd>Three orbital missions</dd>
+          <dt>Missions</dt> <dd>Molniya orbit, Parker Solar Probe escape</dd>
         </dl>
       </div>
       <div class="content">
         <div class="stage">
           <div class="stack">
             <figure class="render">
-              <img src="images/mission-orbit.png" alt="Modelled satellite orbit" onerror="missingImage(this)">
-              <figcaption>Modelled orbit.</figcaption>
+              <img src="images/Ground_Tracks_for_Molniya_Orbit__1_period_.png" data-alts="images/Ground%20Tracks%20for%20Molniya%20Orbit%20(1%20period).png" alt="Ground track of a Molniya orbit over one period, reaching about 63 degrees north" onerror="missingImage(this)">
+              <figcaption>Molniya ground track over one orbital period.</figcaption>
             </figure>
             <figure class="render">
-              <img src="images/mission-groundtrack.png" alt="Satellite ground track and imaging coverage" onerror="missingImage(this)">
-              <figcaption>Ground track and imaging coverage.</figcaption>
+              <img src="images/Ground_Track_Comparison__60_Days_with_final_4_days_plotted_.png" data-alts="images/Ground%20Track%20Comparison%20(60%20Days%20with%20final%204%20days%20plotted).png" alt="Molniya ground tracks after 60 days with and without J2 perturbations, showing westward drift" onerror="missingImage(this)">
+              <figcaption>After 60 days, the J2 ground track (green) has drifted west of the unperturbed track (red).</figcaption>
             </figure>
           </div>
           <div class="writeup">
-          <h4>Brief</h4>
-          <p>Given the requirements for three orbital missions, build software to model each satellite's orbit and imaging.</p>
-          <h4>What I did</h4>
-          <ul>
-            <li>Designed and wrote the modelling software in Python.</li>
-            <li>Completed the orbital mechanics calculations to approximate satellite positions.</li>
-            <li>Modelled imaging for each mission against its requirements.</li>
-          </ul>
+            <h4>Brief</h4>
+            <p>
+              Build Python tools to predict and track two real mission trajectories: a Molniya
+              communications satellite in a highly elliptical orbit, and NASA's Parker Solar Probe
+              leaving Earth on a hyperbolic escape trajectory.
+            </p>
+            <h4>Molniya orbit and ground tracks</h4>
+            <p>
+              From the perigee and apogee altitudes I derived the orbit (eccentricity 0.74,
+              semi-major axis 26,561 km, period 11.97 hours), then solved Kepler's equation with a
+              Newton–Raphson solver to a 1 × 10⁻⁸ tolerance, typically converging in 3 to 4
+              iterations. Each position was rotated from the perifocal frame into Earth-centred
+              inertial and then Earth-fixed coordinates, with an iterative WGS-84 solver for
+              geodetic latitude, to plot the ground tracks.
+            </p>
+            <p>
+              Adding J2 perturbations from Earth's oblateness moved the ground track west by about
+              0.15° per day, clearly visible after 60 days. Over longer missions, that drift means
+              continuous coverage needs orbit corrections or more satellites.
+            </p>
+            <h4>Parker Solar Probe escape</h4>
+            <p>
+              For the hyperbolic case (eccentricity 2.00, 13.0 km/s at a 700 km perigee), a
+              hyperbolic Kepler solver tracked the probe until it leaves Earth's sphere of influence,
+              about 33.2 hours after perigee at 7.56 km/s. Injection error analysis showed a 1% speed
+              error shifts the exit point by about 403 km, against about 2 km for a 1° pointing error,
+              a significant miss when targeting a Venus flyby.
+            </p>
+            <h4>Universal variables</h4>
+            <p>
+              I also critiqued a legacy orbit classifier built on eccentricity thresholds, showing how
+              floating-point noise near the parabolic boundary can flip it between solvers, and why
+              the universal variables method avoids that by handling every orbit type in one
+              formulation.
+            </p>
           </div>
         </div>
       </div>
