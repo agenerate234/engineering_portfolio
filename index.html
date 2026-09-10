@@ -17,6 +17,7 @@
     box.className = 'placeholder';
     box.innerHTML = '<span>Upload this image as<br><strong>' + img.getAttribute('src') + '</strong></span>';
     img.replaceWith(box);
+    if (window.balanceAll) window.balanceAll();
   }
   /* Same idea for videos: runs when the last <source> fails to load. */
   function missingVideo(source) {
@@ -25,6 +26,7 @@
     box.className = 'placeholder';
     box.innerHTML = '<span>Upload this video as<br><strong>' + video.querySelector('source').getAttribute('src') + '</strong></span>';
     video.replaceWith(box);
+    if (window.balanceAll) window.balanceAll();
   }
 </script>
 <style>
@@ -206,8 +208,17 @@
      This is the main layout now; it keeps images a sensible size. */
   .stage { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); gap: 2rem; align-items: start; }
   .stack { display: grid; gap: 1.1rem; }
+  /* Writing moved under the images by the balancing script */
+  .overflow { padding-top: 0.3rem; }
+  .overflow:empty { display: none; }
+  /* Two images side by side when the writing beside them is short */
+  .stack.stack-row { grid-template-columns: 1fr 1fr; align-items: start; }
+  .stack-row .overflow { grid-column: 1 / -1; }
+  /* Photos and video may be cropped a little shorter to level the columns (never CAD, drawings or plots) */
+  .stack figure.photo img { aspect-ratio: var(--crop, auto); object-fit: cover; object-position: center var(--focus, 50%); }
+  /* --focus on a photo sets which part stays in view when cropped: 0% = top, 100% = bottom */
+  .stack figure.video video { aspect-ratio: var(--crop, 4 / 3); }
   /* An image placed under the writing in the right-hand column */
-  .writeup figure { margin-top: 1.4rem; }
   .writeup figure img { aspect-ratio: auto; height: auto; object-fit: contain; }
   .writeup figure.sheet img { aspect-ratio: 1.414 / 1; }
 
@@ -256,12 +267,18 @@
   }
   .placeholder strong { color: var(--navy); }
 
-  .writeup h3, .writeup h4, .text h4 { font-size: 1rem; font-weight: 700; margin: 1.1rem 0 0.3rem; }
-  .writeup > :first-child, .text > :first-child { margin-top: 0; }
-  .writeup p + p, .text p + p { margin-top: 0.7rem; }
-  .writeup ul, .writeup ol, .text ul, .text ol { padding-left: 1.2rem; }
-  .writeup li, .text li { margin-bottom: 0.25rem; }
-  .writeup ul + p, .writeup ol + p, .text ul + p, .text ol + p { margin-top: 0.7rem; }
+  /* Writing: slightly smaller than body text so the columns stay compact */
+  .writeup, .overflow, .text { font-size: 0.925rem; line-height: 1.55; }
+  .writeup h3, .writeup h4, .overflow h3, .overflow h4, .text h4 { font-size: 0.975rem; font-weight: 700; margin: 0 0 0.25rem; }
+  .text h4 { margin-top: 1rem; }
+  .text > :first-child { margin-top: 0; }
+  .unit + .unit { margin-top: 0.6rem; }                 /* paragraph to paragraph */
+  .unit + .unit[data-head], .unit + .unit[data-pin] { margin-top: 1rem; }   /* before a new heading or figure */
+  .unit[data-head] + .unit[data-li], .unit[data-li] + .unit[data-li] { margin-top: 0.2rem; }  /* bullet to bullet */
+  .unit ul, .unit ol { margin: 0; }
+  .unit p + p, .unit ul + p, .unit ol + p, .text p + p, .text ul + p, .text ol + p { margin-top: 0.6rem; }
+  .writeup ul, .writeup ol, .overflow ul, .overflow ol, .text ul, .text ol { padding-left: 1.2rem; }
+  .writeup li, .overflow li, .text li { margin-bottom: 0.2rem; }
 
   .sub-foot { padding: 0 1.75rem 1.25rem; }
   .sub-foot a, .back { font-size: 0.875rem; color: var(--steel); }
@@ -405,7 +422,12 @@
               structure joining the oxidiser tank to the combustion chamber.
             </p>
             <p>
-              The three steps below follow the truss from requirements and concept selection,
+              Beyond the aft truss, I also designed the forward truss and the nose cone, avionics and
+              aft recovery bulkheads, helped design and iterate the chamber adapter plate, and was a
+              core member of the composite layup team for the airframe.
+            </p>
+            <p>
+              The three steps below follow the aft truss from requirements and concept selection,
               through FEA, to breaking struts on a test machine.
             </p>
           </div>
@@ -534,7 +556,7 @@
         <div class="content">
           <div class="stage">
             <div class="stack">
-              <figure>
+              <figure class="photo" style="--focus: 68%">
                 <img src="images/test-static.jpg" alt="Aluminium truss strut bolted between end plates in an Instron 5567 test machine" onerror="missingImage(this)">
                 <figcaption>Static tension test of a truss strut on the Instron 5567.</figcaption>
               </figure>
@@ -808,7 +830,7 @@
               <img src="images/pneumatic-cad.png" alt="SolidWorks CAD model of the pneumatic engine" onerror="missingImage(this)">
               <figcaption>SolidWorks CAD model.</figcaption>
             </figure>
-            <figure>
+            <figure class="photo">
               <img src="images/pneumatic-real.jpg" alt="The finished pneumatic engine" onerror="missingImage(this)">
               <figcaption>The finished engine.</figcaption>
             </figure>
@@ -1017,6 +1039,128 @@
   });
 
   var calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ============================================================
+     COLUMN BALANCING
+     In each image/writing section, the writing is split into blocks
+     (a heading plus its paragraphs, or a single paragraph). If the
+     writing runs longer than the images, blocks are moved from the
+     bottom of the right column to under the images until both sides
+     end level. If the images are taller, the image column narrows
+     instead. Figures in the writing column always stay on the right.
+     This reruns on resize and as images load, and is skipped on
+     phones where everything is one column anyway.
+     ============================================================ */
+  function makeUnits(stage) {
+    if (stage.dataset.ready) return;
+    var right = stage.querySelector('.writeup');
+    var kids = Array.prototype.slice.call(right.children);
+    var units = [], waiting = null;          /* waiting = unit holding a heading with nothing under it yet */
+    function newUnit(kind) {
+      var u = document.createElement('div');
+      u.className = 'unit';
+      u.setAttribute('data-' + kind, '');
+      units.push(u);
+      return u;
+    }
+    kids.forEach(function (el) {
+      var tag = el.tagName;
+      if (tag === 'H3' || tag === 'H4') { waiting = newUnit('head'); waiting.appendChild(el); return; }
+      if (tag === 'FIGURE') { newUnit('pin').appendChild(el); waiting = null; return; }
+      if (tag === 'UL' || tag === 'OL') {                  /* each bullet point can move on its own */
+        Array.prototype.slice.call(el.children).forEach(function (li) {
+          var list = document.createElement(tag);
+          list.appendChild(li);
+          if (waiting) { waiting.appendChild(list); waiting = null; }
+          else newUnit('li').appendChild(list);
+        });
+        return;
+      }
+      if (waiting) { waiting.appendChild(el); waiting = null; }
+      else newUnit('p').appendChild(el);
+    });
+    units.forEach(function (u, i) { u.dataset.i = i; right.appendChild(u); });
+    kids.forEach(function (el) { if (el.parentNode === right && !el.classList.contains('unit')) right.removeChild(el); });
+    var over = document.createElement('div');
+    over.className = 'overflow';
+    stage.querySelector('.stack').appendChild(over);
+    stage.dataset.ready = '1';
+  }
+
+  function h(el) { return el.getBoundingClientRect().height; }
+
+  function balance(stage) {
+    makeUnits(stage);
+    var left = stage.querySelector('.stack'), right = stage.querySelector('.writeup');
+    var over = left.querySelector('.overflow');
+    var units = Array.prototype.slice.call(stage.querySelectorAll('.unit'))
+      .sort(function (a, b) { return a.dataset.i - b.dataset.i; });
+    var movable = units.filter(function (u) { return !u.hasAttribute('data-pin'); });
+    var figures = left.querySelectorAll(':scope > figure').length;
+    var croppable = left.querySelector(':scope > figure.photo, :scope > figure.video') !== null;
+
+    function layout(m, row, f, crop) {
+      units.forEach(function (u) { right.appendChild(u); });          /* original order */
+      if (crop) stage.style.setProperty('--crop', crop); else stage.style.removeProperty('--crop');
+      for (var k = 0; k < m; k++) {                                    /* move the last m blocks */
+        over.insertBefore(movable[movable.length - 1 - k], over.firstChild);
+      }
+      left.classList.toggle('stack-row', row);
+      stage.style.gridTemplateColumns = f ? 'minmax(0, ' + f + 'fr) minmax(0, ' + (1 - f) + 'fr)' : '';
+    }
+    function gap() { return Math.abs(h(left) - h(right)); }
+
+    layout(0, false, 0, null);
+    if (window.innerWidth <= 860) return;                              /* one column on small screens */
+
+    /* Try every combination and keep the most level one. Small penalties
+       keep the layout close to normal when two options are nearly equal. */
+    var best = null;
+    var cropCost = { '4 / 3': 10, '16 / 9': 25 };
+    function score(m, row, f, crop) {
+      layout(m, row, f, crop);
+      var sc = gap() + 200 * Math.abs(f - 0.4) + 6 * m + (row ? 20 : 0) + (crop ? cropCost[crop] : 0);
+      if (!best || sc < best.sc) best = { sc: sc, m: m, row: row, f: f, crop: crop };
+      return sc;
+    }
+    var maxMove = Math.max(0, movable.length - 1);
+    var options = [];
+    for (var m = 0; m <= maxMove; m++) options.push([m, false, null]);
+    if (figures >= 2) options.push([0, true, null]);                  /* images side by side */
+    if (croppable) { options.push([0, false, '4 / 3']); options.push([0, false, '16 / 9']); }
+    options.forEach(function (o) {
+      var localBest = null;
+      for (var f = 0.25; f <= 0.551; f += 0.05) {
+        var sc = score(o[0], o[1], f, o[2]);
+        if (!localBest || sc < localBest.sc) localBest = { sc: sc, f: f };
+      }
+      [0.025, 0.0125].forEach(function (step) {                        /* refine around the best width */
+        var c = localBest.f;
+        [c - step, c + step].forEach(function (f2) {
+          if (f2 < 0.25 || f2 > 0.55) return;
+          var sc = score(o[0], o[1], f2, o[2]);
+          if (sc < localBest.sc) localBest = { sc: sc, f: f2 };
+        });
+      });
+    });
+    layout(best.m, best.row, best.f, best.crop);
+  }
+
+  var balanceTimer;
+  function balanceAll() {
+    clearTimeout(balanceTimer);
+    balanceTimer = setTimeout(function () {
+      document.querySelectorAll('.stage').forEach(balance);
+    }, 120);
+  }
+  window.balanceAll = balanceAll;
+  balanceAll();
+  window.addEventListener('resize', balanceAll);
+  window.addEventListener('load', balanceAll);
+  document.addEventListener('load', function (e) {          /* any image finishing loading */
+    if (e.target.tagName === 'IMG' || e.target.tagName === 'VIDEO') balanceAll();
+  }, true);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(balanceAll);
 
   /* Project videos start playing (muted) when scrolled into view and pause when scrolled away */
   if (!calm && 'IntersectionObserver' in window) {
