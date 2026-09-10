@@ -33,6 +33,8 @@
      ============================================================ */
   :root {
 
+    --hero-image: url("images/hero-background.jpg");  /* your background photo */
+
     --navy:   #0A2342;   /* top bar, footer, headings */
     --deep:   #123E73;   /* mid blue */
     --steel:  #3F5F82;   /* secondary text */
@@ -76,38 +78,20 @@
   .topbar nav a { text-decoration: none; color: var(--sky); }
   .topbar nav a:hover { color: #fff; }
 
-  /* ---------- Hero with background launch video ---------- */
+  /* ---------- Hero with background photo ---------- */
   .hero {
-    position: relative; overflow: hidden;
     min-height: min(72vh, 680px);
     display: flex; align-items: center;
     padding: 5rem 0 4rem;
     color: #fff;
-    background: var(--navy);   /* shows if the video can't load */
-  }
-  .hero-video {
-    position: absolute; inset: 0;
-    width: 100%; height: 100%;
-    object-fit: cover;
-    object-position: center;   /* try "right center" if the rocket gets hidden behind the text */
-  }
-  /* Blue tint and blueprint grid over the video so the text stays readable.
-     Lower the first two opacity values (0.94, 0.80) to show more of the video. */
-  .hero::after {
-    content: ""; position: absolute; inset: 0;
     background:
       linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px) 0 0 / 40px 40px,
       linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px) 0 0 / 40px 40px,
-      linear-gradient(110deg, rgba(10,35,66,0.94) 0%, rgba(18,62,115,0.80) 50%, rgba(29,100,200,0.35) 100%);
+      linear-gradient(110deg, rgba(10,35,66,0.94) 0%, rgba(18,62,115,0.80) 50%, rgba(29,100,200,0.40) 100%),
+      var(--hero-image) center / cover no-repeat,
+      var(--navy);
   }
-  .hero .wrap { width: 100%; position: relative; z-index: 1; }
-  .video-toggle {
-    position: absolute; right: 1.25rem; bottom: 1.25rem; z-index: 2;
-    font: inherit; font-size: 0.8rem; font-weight: 600;
-    color: #fff; background: rgba(10,35,66,0.6);
-    border: 1px solid var(--sky); padding: 0.35rem 0.75rem; cursor: pointer;
-  }
-  .video-toggle:hover { background: rgba(10,35,66,0.9); }
+  .hero .wrap { width: 100%; }
   .hero h1 {
     font-size: clamp(2.5rem, 5.5vw, 4.5rem);
     font-weight: 850;
@@ -222,6 +206,23 @@
      This is the main layout now; it keeps images a sensible size. */
   .stage { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); gap: 2rem; align-items: start; }
   .stack { display: grid; gap: 1.1rem; }
+  /* An image placed under the writing in the right-hand column */
+  .writeup figure { margin-top: 1.4rem; }
+  .writeup figure img { aspect-ratio: auto; height: auto; object-fit: contain; }
+  .writeup figure.sheet img { aspect-ratio: 1.414 / 1; }
+
+  /* Collapsible set of detail drawings */
+  .drawings { border-top: 1px solid var(--line); padding-top: 1.25rem; }
+  .drawings summary {
+    display: inline-block; cursor: pointer; list-style: none;
+    padding: 0.55rem 1rem; border: 1.5px solid var(--navy);
+    font-weight: 600; font-size: 0.9rem;
+  }
+  .drawings summary::-webkit-details-marker { display: none; }
+  .drawings summary:hover { border-color: var(--accent); color: var(--accent); }
+  .drawings[open] summary { background: var(--navy); color: #fff; }
+  .drawing-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 1rem; margin-top: 1.25rem; }
+  .drawing-grid figure img, .drawing-grid figure .placeholder { aspect-ratio: 1.414 / 1; object-fit: contain; }
 
   /* Image types: add one of these classes to a <figure>
        (none)   photo, 4:3, cropped to fill
@@ -230,11 +231,11 @@
        .wide    wide photo, 16:9 (good for .feature)                      */
   figure img, figure .placeholder {
     width: 100%; aspect-ratio: 4 / 3; display: block;
-    object-fit: cover; border: 1px solid var(--line); background: #fff;
+    object-fit: cover; border: 1px solid var(--navy); background: #fff;
   }
   figure.render img { object-fit: contain; }
   /* Videos show whole (no cropping), on navy, so phone videos filmed upright still fit */
-  figure video { width: 100%; aspect-ratio: 4 / 3; display: block; object-fit: contain; background: var(--navy); border: 1px solid var(--line); }
+  figure video { width: 100%; aspect-ratio: 4 / 3; display: block; object-fit: contain; background: var(--navy); border: 1px solid var(--navy); }
   figure.video .placeholder { aspect-ratio: 4 / 3; }
   figure.sheet img, figure.sheet .placeholder { aspect-ratio: 1.414 / 1; object-fit: contain; }
   figure.wide img, figure.wide .placeholder { aspect-ratio: 16 / 9; }
@@ -244,7 +245,7 @@
   figcaption { margin-top: 0.45rem; font-size: 0.825rem; color: var(--steel); }
 
   .placeholder {
-    border-style: dashed !important; border-color: var(--steel) !important;
+    border-style: dashed !important; border-color: var(--navy) !important;
     background-color: var(--page) !important;
     background-image:
       linear-gradient(var(--line) 1px, transparent 1px),
@@ -317,14 +318,6 @@
 
   <!-- ==================== HERO ==================== -->
   <section class="hero">
-    <!-- Background launch video. Muted is required for autoplay in browsers.
-         The .mp4 is tried first; the .mov is a fallback that works in Safari,
-         and in Chrome only if it was recorded as H.264 ("Most Compatible"). -->
-    <video class="hero-video" id="heroVideo" muted loop playsinline preload="auto" aria-hidden="true">
-      <source src="videos/galah_launch_video.mp4" type="video/mp4">
-      <source src="videos/galah_launch_video.mov" type="video/mp4" onerror="document.getElementById('heroVideo').remove(); document.getElementById('videoToggle').remove();">
-    </video>
-    <button class="video-toggle" id="videoToggle" type="button">Pause video</button>
     <div class="wrap">
       <h1>Andrew Tan</h1>
       <p class="discipline">Mechanical and space engineering student</p>
@@ -357,14 +350,14 @@
           <span class="summary">Designing, simulating and testing the aft truss for the USYD Rocketry Team's 10,000 ft hybrid launch vehicle.</span>
         </a>
         <ul class="sublinks">
-          <li><a href="#truss-design">Aft truss design</a></li>
+          <li><a href="#truss-design">Design and optimisation</a></li>
           <li><a href="#truss-fea">FEA simulation</a></li>
           <li><a href="#truss-testing">Destructive testing</a></li>
         </ul>
       </div>
       <a class="tile" href="#pneumatic-engine">
         <span class="title">Pneumatic engine</span>
-        <span class="summary">Double-acting pneumatic engine with a flywheel and sliding valve, machined in the workshop.</span>
+        <span class="summary">Two-cylinder, double-acting engine with a "dog bone" sliding valve, designed in SolidWorks and machined by a team of four.</span>
         <span class="tags">SolidWorks, lathe, mill</span>
       </a>
       <a class="tile" href="#mission-modelling">
@@ -391,21 +384,38 @@
           <dt>Tools</dt> <dd>Onshape, ANSYS 2024 R1, Instron 5567</dd>
         </dl>
       </div>
+
+      <!-- Launch video beside the overview -->
       <div class="content">
-        <div class="text">
-          <p>
-            The aft truss is the three-strut aluminium structure between Galah's oxidiser tank
-            and combustion chamber. I designed it, and this section follows it the whole way:
-            defining the loads, exploring and drawing designs, simulating the final strut in
-            ANSYS, then testing struts to failure to check the simulation.
-          </p>
+        <div class="stage">
+          <div class="stack">
+            <figure class="video">
+              <video controls muted loop playsinline preload="metadata">
+                <source src="videos/galah_launch_video.mp4" type="video/mp4">
+                <source src="videos/galah_launch_video.mov" type="video/mp4" onerror="missingVideo(this)">
+              </video>
+              <figcaption>Galah launch.</figcaption>
+            </figure>
+          </div>
+          <div class="writeup">
+            <h3>Overview</h3>
+            <p>
+              Galah is the USYD Rocketry Team's 10,000 ft hybrid launch vehicle, with a simulated
+              apogee of about 11,500 ft. As a Flight Systems Engineer I designed its aft truss, the
+              structure joining the oxidiser tank to the combustion chamber.
+            </p>
+            <p>
+              The three steps below follow the truss from requirements and concept selection,
+              through FEA, to breaking struts on a test machine.
+            </p>
+          </div>
         </div>
       </div>
 
-      <!-- ---------- Step 1: Design ---------- -->
+      <!-- ---------- Step 1 ---------- -->
       <section class="sub" id="truss-design">
         <div class="sub-head">
-          <h3>Design and loading</h3>
+          <h3>Aft Truss Design and Optimisation</h3>
           <span class="meta">Step 1 of 3, Onshape</span>
         </div>
         <div class="content">
@@ -421,30 +431,54 @@
               </figure>
             </div>
             <div class="writeup">
-              <h4>Defining the load</h4>
+              <h4>Requirements</h4>
               <p>
-                The three 6061-T6 struts form the structural load path between the combustion
-                chamber and the rest of the vehicle, and the truss also acts as the body coupler
-                joining the airframe sections either side. Before modelling anything, I defined
-                the loads each strut would have to carry.
+                The aft truss joins the oxidiser tank to the combustion chamber, through an adapter
+                plate that bridges their different diameters, and doubles as the coupler for the
+                boat tail. That fixes its outer diameter at 152.4 mm to match the boat tail and its
+                length at 6 inches, and means every load from the tank passes through it. It also
+                has to house the main oxidiser valve, flight computer, solenoid valve, battery,
+                datalogger and quick disconnect, with room to reach them with tools.
               </p>
-              <!-- ADD one or two sentences with your real numbers, e.g.
-                   peak thrust, maximum acceleration, the resulting load per strut,
-                   and the safety factor you were designing to. -->
-              <h4>Exploring designs</h4>
+              <h4>Load cases</h4>
               <p>
-                I explored several strut designs, drawing up and modelling each option in
-                Onshape before settling on the final geometry.
+                Two cases drive the design: compression from about 4.1 kN of engine thrust during
+                boost, and combined axial and bending load from the 10 kN main parachute deployment.
+                The deployment angle is unknown, so the recovery load was swept across angles; peak
+                stress occurs near 85°, almost side-on to the rocket.
               </p>
-              <!-- ADD what the main options were (e.g. solid vs I-section, different
-                   flange shapes) and the reason you chose the final one. -->
+              <h4>Concepts explored</h4>
+              <p>
+                I developed two concepts in a fully parameterised Onshape model. A webbed truss of
+                four diagonal strut pairs, machined as a single part, would have removed the
+                alignment problems of earlier multi-part trusses and handled torsion well. But its
+                thin, curved members left almost no flat faces to mount the datalogger and solenoid
+                valve, so the conventional straight-strut design won.
+              </p>
+              <h4>Optimisation</h4>
+              <p>
+                The key variable was the gap angle between struts, which sets tool access. A wider
+                gap needs thicker struts to hold the same 1.5 minimum safety factor, and beyond about
+                86° the required thickness climbs steeply, so 86° became the trade-off between access
+                and mass. Three struts came out lighter than four at the same gap angle.
+              </p>
+              <p>
+                The bolt flanges face outwards so a torque wrench reaches every bolt, an improvement
+                on the internal flanges of earlier trusses. The datalogger housing and solenoid valve
+                mount straight onto the struts with M3 screws, with the screw holes accounted for in
+                the strut strength.
+              </p>
+              <figure>
+                <img src="images/propulsion-interface-with-struts.png" alt="Onshape assembly of the aft truss struts with the solenoid valve and plumbing mounted between them" onerror="missingImage(this)">
+                <figcaption>The aft truss integrated with the propulsion system, with the solenoid valve and plumbing mounted between the struts.</figcaption>
+              </figure>
             </div>
           </div>
         </div>
         <div class="sub-foot"><a href="#galah">Back to aft truss overview</a></div>
       </section>
 
-      <!-- ---------- Step 2: FEA ---------- -->
+      <!-- ---------- Step 2 ---------- -->
       <section class="sub" id="truss-fea">
         <div class="sub-head">
           <h3>FEA simulation</h3>
@@ -464,8 +498,8 @@
             </div>
             <div class="writeup">
               <p>
-                I simulated a single strut in ANSYS under a tension load case, with one end
-                flange fixed and the load applied through the other.
+                To check the hand calculations, I modelled a single strut in ANSYS under the tension
+                load case, with one end flange fixed and the load applied through the other.
               </p>
               <h4>Results</h4>
               <ul>
@@ -473,18 +507,25 @@
                 <li>Maximum total deformation of 0.90 mm, at the loaded end.</li>
               </ul>
               <p>
-                I ran a mesh convergence study to make sure the results didn't depend on mesh
-                size, used the results to drive material selection, and wrote up the setup and
-                results as simulation documentation for the team.
+                The hand calculations in the design review put the critical case at a safety factor
+                of 1.91, on the tension side of the truss under side-on recovery load. The FEA
+                minimum of 1.70 still clears the 1.5 design target.
               </p>
-              <!-- ADD the load you applied and the yield strength you used for 6061-T6 -->
+              <!-- ADD, if the FEA used the same recovery load as the hand calculation: one sentence
+                   explaining the gap between 1.91 and 1.70 (e.g. the stress concentration at the
+                   fillet, which the hand calculation's uniform section can't capture). -->
+              <p>
+                I ran a mesh convergence study to make sure the results didn't depend on mesh size,
+                used the results to drive material selection, and wrote up the setup and results as
+                simulation documentation for the team.
+              </p>
             </div>
           </div>
         </div>
         <div class="sub-foot"><a href="#galah">Back to aft truss overview</a></div>
       </section>
 
-      <!-- ---------- Step 3: Testing ---------- -->
+      <!-- ---------- Step 3 ---------- -->
       <section class="sub" id="truss-testing">
         <div class="sub-head">
           <h3>Destructive testing</h3>
@@ -500,18 +541,19 @@
             </div>
             <div class="writeup">
               <p>
-                To check the simulation against reality, I wrote the test procedure and tested
-                aluminium truss struts to failure. For the static test, the strut was bolted
+                The truss was designed to a 1.5 minimum safety factor, rather than something higher,
+                because it would be proven by destructive testing. I wrote the test procedure and
+                tested aluminium truss struts to failure. For the static test, the strut was bolted
                 between two end plates and pulled in tension through the machine's grips.
               </p>
               <p>
                 Across the static and dynamic tests I identified three failure modes: yield,
-                buckling and thread shear-out. I then compared the measured failure loads with
-                my FEA predictions to validate the design.
+                buckling and thread shear-out, the last being one of the fastener failure modes
+                checked in the design. I then compared the measured failure loads with the FEA
+                predictions to validate the design.
               </p>
               <!-- ADD: the static failure load vs the FEA prediction (and % difference),
-                   and whether it failed at the fillet the FEA flagged. This is the
-                   strongest sentence you can put on this page. -->
+                   and whether it failed at the fillet the FEA flagged. -->
             </div>
           </div>
         </div>
@@ -753,8 +795,9 @@
           <p class="subtitle">Design and Construction of Mechanical Systems (MECH1400)</p>
         </div>
         <dl class="title-block">
-          <dt>Date</dt>     <dd>Sep 2024</dd>
-          <dt>CAD</dt>      <dd>SolidWorks</dd>
+          <dt>Team</dt>     <dd>4 people</dd>
+          <dt>Date</dt>     <dd>Semester 2, 2024</dd>
+          <dt>CAD</dt>      <dd>SolidWorks, AS1100 drawings</dd>
           <dt>Workshop</dt> <dd>Lathe, mill, drill press</dd>
         </dl>
       </div>
@@ -772,22 +815,117 @@
           </div>
           <div class="writeup">
             <h3>Brief</h3>
-            <p>Design and build a working double-acting pneumatic engine combining a flywheel and a sliding-valve system.</p>
-            <h3>What I did</h3>
+            <p>
+              Research, design and build a small compressed-air reciprocating engine from a set list
+              of materials, in 24 workshop hours, running on a constant 50 psi supply and fitting a
+              200 × 150 mm plywood base.
+            </p>
+            <h3>Design</h3>
+            <p>
+              We compared wobbler, rocker and sliding-valve layouts and chose a double-acting
+              sliding-valve engine, where air drives the piston on both strokes. On tutor advice we
+              used a "dog bone" valve: a brass rod with two heads that switches which end of the
+              power cylinder is fed and which is exhausted. The piston and valve each run in a 40 mm
+              square mild steel cylinder with a 19.05 mm bore, and two linked Ø80 mm flywheels keep
+              the valve in time with the piston.
+            </p>
+            <h3>Analysis</h3>
             <ul>
-              <li>Selected materials and ran stress and tolerance analysis on the components.</li>
-              <li>Modelled the engine in SolidWorks and produced the engineering drawings.</li>
-              <li>Machined custom components on the lathe, mill and drill press.</li>
+              <li>With a wall-to-bore ratio of 0.55, the cylinders are thick-walled, so we used Lamé's equations: a hoop stress of 446 kPa against mild steel's 320 MPa yield strength.</li>
+              <li>Grashof's formula gave a minimum piston head thickness of 0.35 mm; ours is 10 mm.</li>
+              <li>Brass for the piston and valve, since brass on steel has lower friction than steel on steel.</li>
             </ul>
-            <!-- ADD a "Result" heading: e.g. did it run, at what speed or supply pressure -->
+            <h3>My part</h3>
+            <ul>
+              <li>Selected the materials for the engine.</li>
+              <li>Milled the cylinder end plates from 8 mm to 6 mm, in cuts of 0.5 mm or less, to a 3.2 µm surface finish, then drilled them.</li>
+              <li>Cut, filed and drilled the crank rods, and cut and drilled the mounting brackets.</li>
+              <li>Checked and approved the detail drawings, co-wrote the final report, and wrote the reflective report.</li>
+            </ul>
+            <h3>What I learnt</h3>
+            <p>
+              Our first set of end plates came off the mill uneven and out of parallel, so we ordered
+              new stock and re-milled them. Lining up four scribed bolt holes with the cylinder was
+              also hit and miss until a demonstrator suggested drilling and bolting one hole first,
+              then using it as the datum for the other three.
+            </p>
+            <!-- ADD a sentence on the result: did it run, and how well? -->
+            <figure class="sheet">
+              <img src="images/pneumatic-assembly-drawing.png" alt="AS1100 assembly drawing of the pneumatic engine with sections and parts list" onerror="missingImage(this)">
+              <figcaption>Assembly drawing with sections and parts list. Click to enlarge.</figcaption>
+            </figure>
           </div>
         </div>
+
+        <!-- All detail drawings, hidden until the button is clicked -->
+        <details class="drawings">
+          <summary>Show all 15 detail drawings</summary>
+          <div class="drawing-grid">
+            <figure>
+              <img src="pneumatic-engine-drawings/cylinder-valve.png" alt="Detail drawing: Cylinder, valve" loading="lazy" onerror="missingImage(this)">
+              <figcaption>Cylinder, valve (4-1)</figcaption>
+            </figure>
+            <figure>
+              <img src="pneumatic-engine-drawings/cylinder-piston.png" alt="Detail drawing: Cylinder, piston" loading="lazy" onerror="missingImage(this)">
+              <figcaption>Cylinder, piston (4-2)</figcaption>
+            </figure>
+            <figure>
+              <img src="pneumatic-engine-drawings/end-plate-rear.png" alt="Detail drawing: End plate, rear" loading="lazy" onerror="missingImage(this)">
+              <figcaption>End plate, rear (4-3)</figcaption>
+            </figure>
+            <figure>
+              <img src="pneumatic-engine-drawings/end-plate-front.png" alt="Detail drawing: End plate, front" loading="lazy" onerror="missingImage(this)">
+              <figcaption>End plate, front (4-4)</figcaption>
+            </figure>
+            <figure>
+              <img src="pneumatic-engine-drawings/piston.png" alt="Detail drawing: Piston" loading="lazy" onerror="missingImage(this)">
+              <figcaption>Piston (4-5)</figcaption>
+            </figure>
+            <figure>
+              <img src="pneumatic-engine-drawings/crank-rod.png" alt="Detail drawing: Crank rod" loading="lazy" onerror="missingImage(this)">
+              <figcaption>Crank rod (4-6)</figcaption>
+            </figure>
+            <figure>
+              <img src="pneumatic-engine-drawings/flywheel-valve.png" alt="Detail drawing: Flywheel, valve" loading="lazy" onerror="missingImage(this)">
+              <figcaption>Flywheel, valve (4-7)</figcaption>
+            </figure>
+            <figure>
+              <img src="pneumatic-engine-drawings/flywheel-piston.png" alt="Detail drawing: Flywheel, piston" loading="lazy" onerror="missingImage(this)">
+              <figcaption>Flywheel, piston (4-8)</figcaption>
+            </figure>
+            <figure>
+              <img src="pneumatic-engine-drawings/valve.png" alt="Detail drawing: Valve" loading="lazy" onerror="missingImage(this)">
+              <figcaption>Valve (4-9)</figcaption>
+            </figure>
+            <figure>
+              <img src="pneumatic-engine-drawings/flywheel-conrod.png" alt="Detail drawing: Flywheel conrod" loading="lazy" onerror="missingImage(this)">
+              <figcaption>Flywheel conrod (4-10)</figcaption>
+            </figure>
+            <figure>
+              <img src="pneumatic-engine-drawings/flywheel-mount.png" alt="Detail drawing: Flywheel mount" loading="lazy" onerror="missingImage(this)">
+              <figcaption>Flywheel mount (4-11)</figcaption>
+            </figure>
+            <figure>
+              <img src="pneumatic-engine-drawings/equal-angle.png" alt="Detail drawing: Equal angle" loading="lazy" onerror="missingImage(this)">
+              <figcaption>Equal angle (4-12)</figcaption>
+            </figure>
+            <figure>
+              <img src="pneumatic-engine-drawings/cylinder-base.png" alt="Detail drawing: Cylinder base" loading="lazy" onerror="missingImage(this)">
+              <figcaption>Cylinder base (4-13)</figcaption>
+            </figure>
+            <figure>
+              <img src="pneumatic-engine-drawings/connecting-plate.png" alt="Detail drawing: Connecting plate" loading="lazy" onerror="missingImage(this)">
+              <figcaption>Connecting plate (4-14)</figcaption>
+            </figure>
+            <figure>
+              <img src="pneumatic-engine-drawings/equal-angle-small.png" alt="Detail drawing: Equal angle, small" loading="lazy" onerror="missingImage(this)">
+              <figcaption>Equal angle, small (4-16)</figcaption>
+            </figure>
+          </div>
+        </details>
       </div>
       <div class="project-foot">
-        <div class="btns">
-          <a class="btn" href="images/pneumatic-assembly-drawing.png" target="_blank">View assembly drawing</a>
-          <a class="btn" href="files/pneumatic-engine-drawings.pdf" target="_blank">All drawings (PDF)</a>
-        </div>
+        <div class="btns"></div>
         <a class="back" href="#projects">Back to projects</a>
       </div>
     </article>
@@ -869,19 +1007,16 @@
   });
   viewer.addEventListener('click', function () { viewer.close(); });
 
-  /* Hero video: plays automatically unless the visitor has asked their device
-     to reduce motion. The button lets anyone pause or play it. */
-  var hero = document.getElementById('heroVideo');
-  var toggle = document.getElementById('videoToggle');
-  var calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if (hero && toggle) {
-    if (calm) { toggle.textContent = 'Play video'; }
-    else { hero.play().catch(function () { toggle.textContent = 'Play video'; }); }
-    toggle.addEventListener('click', function () {
-      if (hero.paused) { hero.play(); toggle.textContent = 'Pause video'; }
-      else { hero.pause(); toggle.textContent = 'Play video'; }
+  /* Drawings button label switches between Show and Hide */
+  document.querySelectorAll('details.drawings').forEach(function (d) {
+    var label = d.querySelector('summary');
+    var showText = label.textContent;
+    d.addEventListener('toggle', function () {
+      label.textContent = d.open ? showText.replace('Show', 'Hide') : showText;
     });
-  }
+  });
+
+  var calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   /* Project videos start playing (muted) when scrolled into view and pause when scrolled away */
   if (!calm && 'IntersectionObserver' in window) {
