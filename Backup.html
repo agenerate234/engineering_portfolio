@@ -1,1 +1,1294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Engineering Portfolio | Andrew Tan</title>
+<meta name="description" content="Engineering projects by Andrew Tan, including structures and composites work on the USYD Rocketry Team's Galah 10,000 ft hybrid launch vehicle.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,300..900&display=swap" rel="stylesheet">
+<script>
+  /* If an image file hasn't been uploaded yet, show a labelled box with the
+     exact filename to upload instead of a broken image icon. */
+  function missingImage(img) {
+    /* data-alts lists other possible filenames (separated by |) to try first */
+    var alts = (img.getAttribute('data-alts') || '').split('|').filter(Boolean);
+    if (!img.dataset.first) img.dataset.first = img.getAttribute('src');
+    if (alts.length) {
+      img.setAttribute('data-alts', alts.slice(1).join('|'));
+      img.src = alts[0];
+      return;
+    }
+    img.onerror = null;
+    var box = document.createElement('div');
+    box.className = 'placeholder';
+    box.innerHTML = '<span>Upload this image as<br><strong>' + decodeURIComponent(img.dataset.first) + '</strong></span>';
+    img.replaceWith(box);
+    if (window.balanceAll) window.balanceAll();
+  }
+  /* Same idea for videos: runs when the last <source> fails to load. */
+  function missingVideo(source) {
+    var video = source.parentElement;
+    var box = document.createElement('div');
+    box.className = 'placeholder';
+    box.innerHTML = '<span>Upload this video as<br><strong>' + video.querySelector('source').getAttribute('src') + '</strong></span>';
+    video.replaceWith(box);
+    if (window.balanceAll) window.balanceAll();
+  }
+</script>
+<style>
+  /* ============================================================
+     SETTINGS: change colours, width and the background photo here
+     ============================================================ */
+  :root {
+
+    --hero-image: url("images/hero-background.jpg");  /* your background photo */
+
+    --navy:   #0A2342;   /* top bar, footer, headings */
+    --deep:   #123E73;   /* mid blue */
+    --steel:  #3F5F82;   /* secondary text */
+    --sky:    #B5CBE3;   /* secondary text on dark blue */
+    --page:   #D5E3F1;   /* page background, top */
+    --page-2: #BFD3EA;   /* page background, bottom */
+    --sheet:  #F7FAFD;   /* project cards */
+    --line:   #BCCDE0;   /* borders */
+    --accent: #1D64C8;   /* links, hover, focus */
+
+    --max: 1600px;          /* width of the title area */
+    --max-content: 1200px;  /* width of top bar, projects, skills and footer */
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+  body {
+    font-family: "Archivo", system-ui, sans-serif;
+    font-variation-settings: "wdth" 100;
+    font-size: 1rem;
+    line-height: 1.6;
+    color: var(--navy);
+    background: linear-gradient(180deg, var(--page) 0%, var(--page-2) 100%) fixed, var(--page);
+  }
+  a { color: inherit; }
+  :focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+  .wrap { max-width: var(--max-content); margin: 0 auto; padding: 0 clamp(1.25rem, 4vw, 3rem); }
+  .hero .wrap { max-width: var(--max); }
+
+  /* ---------- Top bar ---------- */
+  .topbar {
+    position: sticky; top: 0; z-index: 10;
+    background: var(--navy); color: #fff;
+    border-bottom: 1px solid var(--deep);
+  }
+  .topbar .wrap { display: flex; justify-content: space-between; align-items: center; height: 3.25rem; }
+  .topbar .name { font-weight: 700; text-decoration: none; }
+  .topbar nav { display: flex; gap: 1.5rem; font-size: 0.925rem; }
+  .topbar nav a { text-decoration: none; color: var(--sky); }
+  .topbar nav a:hover { color: #fff; }
+
+  /* ---------- Hero with background photo ---------- */
+  .hero {
+    min-height: min(72vh, 680px);
+    display: flex; align-items: center;
+    padding: 5rem 0 4rem;
+    color: #fff;
+    background:
+      linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px) 0 0 / 40px 40px,
+      linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px) 0 0 / 40px 40px,
+      linear-gradient(110deg, rgba(10,35,66,0.94) 0%, rgba(18,62,115,0.80) 50%, rgba(29,100,200,0.40) 100%),
+      var(--hero-image) center / cover no-repeat,
+      var(--navy);
+  }
+  .hero .wrap { width: 100%; }
+  .hero .eyebrow {
+    font-size: clamp(0.9rem, 1.3vw, 1.05rem); font-weight: 600;
+    letter-spacing: 0.14em; text-transform: uppercase; color: var(--sky);
+    margin-bottom: 0.6rem;
+  }
+  .hero h1 {
+    font-size: clamp(2.5rem, 5.5vw, 4.5rem);
+    font-weight: 850;
+    font-variation-settings: "wdth" 125;
+    line-height: 0.95;
+    letter-spacing: -0.015em;
+  }
+  .hero .discipline { margin-top: 0.9rem; font-size: clamp(1.05rem, 1.6vw, 1.25rem); color: var(--sky); }
+  .hero .intro { margin-top: 1.25rem; max-width: 64ch; font-size: 1.05rem; }
+
+  .facts {
+    margin-top: 2rem;
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    border-top: 1px solid rgba(181,203,227,0.5);
+    max-width: 1000px;
+  }
+  .facts div { padding: 0.75rem 1.5rem 0.75rem 0; }
+  .facts dt { font-size: 0.825rem; color: var(--sky); }
+  .facts dd { font-weight: 600; font-size: 0.95rem; }
+
+  .contact { margin-top: 1.75rem; display: flex; flex-wrap: wrap; gap: 0.65rem; }
+  .btn {
+    display: inline-block; padding: 0.55rem 1rem;
+    border: 1.5px solid var(--navy);
+    text-decoration: none; font-weight: 600; font-size: 0.9rem;
+  }
+  .btn:hover { border-color: var(--accent); color: var(--accent); }
+  .hero .btn { border-color: var(--sky); color: #fff; }
+  .hero .btn.primary { background: #fff; color: var(--navy); border-color: #fff; }
+  .hero .btn:hover { border-color: #fff; background: rgba(255,255,255,0.1); }
+  .hero .btn.primary:hover { color: var(--accent); background: #fff; }
+
+  /* ---------- Project index ---------- */
+  .index { padding-top: 3rem; padding-bottom: 3.5rem; }
+  .section-title { font-size: 1.15rem; font-weight: 700; margin-bottom: 0.9rem; }
+  .index-grid {
+    display: grid; grid-template-columns: repeat(2, 1fr);
+    border-top: 2px solid var(--navy); border-left: 1px solid var(--line);
+  }
+  .tile {
+    display: flex; flex-direction: column; gap: 0.35rem;
+    padding: 1.1rem 1.25rem 1.3rem;
+    border-right: 1px solid var(--line); border-bottom: 1px solid var(--line);
+    background: var(--sheet); text-decoration: none;
+  }
+  a.tile:hover { background: #fff; box-shadow: inset 4px 0 0 var(--accent); }
+  a.tile:hover .title, .tile-main:hover .title { color: var(--accent); }
+  .tile .title { font-size: 1.15rem; font-weight: 750; line-height: 1.25; font-variation-settings: "wdth" 110; }
+  .tile .summary { color: var(--steel); font-size: 0.925rem; max-width: 70ch; }
+  .tile .tags { margin-top: 0.4rem; font-size: 0.825rem; color: var(--steel); }
+  .tile-wide { grid-column: 1 / -1; background: #fff; box-shadow: inset 4px 0 0 var(--navy); }
+  .tile-main { text-decoration: none; display: flex; flex-direction: column; gap: 0.35rem; }
+  .tile-wide .title { font-size: 1.4rem; }
+  .sublinks { list-style: none; display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.8rem; }
+  .sublinks a {
+    display: inline-block; padding: 0.35rem 0.75rem;
+    border: 1px solid var(--line); background: var(--page);
+    text-decoration: none; font-size: 0.85rem; font-weight: 600;
+  }
+  .sublinks a:hover { border-color: var(--accent); color: var(--accent); background: #fff; }
+
+  /* ---------- Project cards ---------- */
+  .project {
+    background: var(--sheet);
+    border: 1px solid var(--line); border-top: 3px solid var(--deep);
+    margin-bottom: 2.5rem;
+    scroll-margin-top: 4.25rem;
+  }
+  .project-head {
+    display: grid; grid-template-columns: 1fr minmax(240px, 340px);
+    border-bottom: 1px solid var(--line);
+  }
+  .project-head .heading { padding: 1.5rem 1.75rem 0; display: flex; flex-direction: column; }
+  /* Skills row under a project title, sitting on the bottom edge like a title-block row.
+     Keep the wording the same as the Skills section at the bottom of the page. */
+  .skills-used {
+    margin: auto -1.75rem 0; padding: 0.6rem 1.75rem 0.7rem;
+    border-top: 1px solid var(--line);
+    display: grid; grid-template-columns: auto 1fr; align-items: baseline; gap: 0.5rem 0.9rem;
+  }
+  .project-head .subtitle { margin-bottom: 1.1rem; }   /* minimum gap above the skills row */
+  .skills-label { font-size: 0.85rem; color: var(--steel); }
+  .skills-used ul { list-style: none; display: flex; flex-wrap: wrap; gap: 0.4rem; }
+  .skills-used li {
+    font-size: 0.8rem; font-weight: 600; line-height: 1.3;
+    padding: 0.25rem 0.6rem;
+    border: 1px solid var(--line); background: var(--page);
+  }
+  .project-head h2 {
+    font-size: clamp(1.5rem, 2.6vw, 2.1rem);
+    font-weight: 800; font-variation-settings: "wdth" 115; line-height: 1.1;
+  }
+  .subtitle { margin-top: 0.35rem; color: var(--steel); font-size: 0.95rem; }
+
+  .title-block {
+    border-left: 1px solid var(--line);
+    display: grid; grid-template-columns: auto 1fr; align-content: start;
+    font-size: 0.85rem;
+  }
+  .title-block dt, .title-block dd { padding: 0.5rem 0.9rem; border-bottom: 1px solid var(--line); }
+  .title-block dt { color: var(--steel); border-right: 1px solid var(--line); }
+  .title-block dd { font-weight: 600; }
+  .title-block dt:last-of-type, .title-block dd:last-of-type { border-bottom: none; }
+
+  /* ---------- Galah subsections ---------- */
+  .sub { border-top: 1px solid var(--line); scroll-margin-top: 4.25rem; }
+  .sub-head { padding: 1.4rem 1.75rem 0; display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.3rem 1.25rem; }
+  .sub-head h3 { font-size: clamp(1.2rem, 1.8vw, 1.45rem); font-weight: 750; font-variation-settings: "wdth" 110; line-height: 1.2; }
+  .sub-head .meta { color: var(--steel); font-size: 0.875rem; }
+  .part-title { font-size: 1.05rem; font-weight: 700; border-bottom: 1px solid var(--line); padding-bottom: 0.35rem; }
+
+  /* ============================================================
+     LAYOUT BLOCKS: put these inside <div class="content"> in any order
+       .pair    two images side by side
+       .split   image on the left, writing on the right
+       .feature one large full-width image
+       .text    writing on its own
+     ============================================================ */
+  .content { padding: 1.5rem 1.75rem 1.75rem; display: grid; gap: 1.75rem; }
+  .sub .content { padding-top: 1.1rem; }
+
+  .pair  { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; align-items: start; }
+  .split { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: 2rem; align-items: start; }
+  .text, .split .writeup { max-width: 75ch; }
+
+  /* .stage: up to two images stacked on the left, writing on the right.
+     This is the main layout now; it keeps images a sensible size. */
+  .stage { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); gap: 2rem; align-items: start; }
+  .stack { display: grid; gap: 1.1rem; }
+  /* Writing moved under the images by the balancing script */
+  .overflow { padding-top: 0.3rem; }
+  .overflow:empty { display: none; }
+  /* Two images side by side when the writing beside them is short */
+  .stack.stack-row { grid-template-columns: 1fr 1fr; align-items: start; }
+  .stack-row .overflow { grid-column: 1 / -1; }
+  /* Photos and video may be cropped a little shorter to level the columns (never CAD, drawings or plots) */
+  .stack figure.photo img { aspect-ratio: var(--crop, auto); object-fit: cover; object-position: center var(--focus, 50%); }
+  /* --focus on a photo sets which part stays in view when cropped: 0% = top, 100% = bottom */
+  .stack figure.video video { aspect-ratio: var(--crop, 4 / 3); }
+  /* An image placed under the writing in the right-hand column */
+  .writeup figure img { aspect-ratio: auto; height: auto; object-fit: contain; }
+  .writeup figure.sheet img { aspect-ratio: 1.414 / 1; }
+
+  /* Collapsible set of detail drawings */
+  .drawings { border-top: 1px solid var(--line); padding-top: 1.25rem; }
+  .drawings summary {
+    display: inline-block; cursor: pointer; list-style: none;
+    padding: 0.55rem 1rem; border: 1.5px solid var(--navy);
+    font-weight: 600; font-size: 0.9rem;
+  }
+  .drawings summary::-webkit-details-marker { display: none; }
+  .drawings summary:hover { border-color: var(--accent); color: var(--accent); }
+  .drawings[open] summary { background: var(--navy); color: #fff; }
+  .drawing-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 1rem; margin-top: 1.25rem; }
+  .drawing-grid figure img, .drawing-grid figure .placeholder { aspect-ratio: 1.414 / 1; object-fit: contain; }
+  /* A single image revealed by a button, shown whole */
+  .reveal-figure { margin-top: 1.25rem; max-width: 900px; }
+  .reveal-figure img { aspect-ratio: auto; height: auto; object-fit: contain; }
+  /* Slimmer focus ring on the reveal buttons (Safari shows it after a click) */
+  .drawings summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  /* Image types: add one of these classes to a <figure>
+       (none)   photo, 4:3, cropped to fill
+       .render  CAD render, 4:3, whole image shown on white
+       .sheet   engineering drawing, A-size landscape, whole sheet shown
+       .wide    wide photo, 16:9 (good for .feature)                      */
+  figure img, figure .placeholder {
+    width: 100%; aspect-ratio: 4 / 3; display: block;
+    object-fit: cover; border: 1px solid var(--navy); background: #fff;
+  }
+  figure.render img { object-fit: contain; }
+  /* Videos show whole (no cropping), on navy, so phone videos filmed upright still fit */
+  figure video { width: 100%; aspect-ratio: 4 / 3; display: block; object-fit: contain; background: var(--navy); border: 1px solid var(--navy); }
+  figure.video .placeholder { aspect-ratio: 4 / 3; }
+  figure.sheet img, figure.sheet .placeholder { aspect-ratio: 1.414 / 1; object-fit: contain; }
+  figure.wide img, figure.wide .placeholder { aspect-ratio: 16 / 9; }
+  figure img { cursor: zoom-in; }
+  /* Inside a stack, uploaded images keep their own shape instead of being cropped */
+  .stack figure img { aspect-ratio: auto; height: auto; max-height: 460px; object-fit: contain; }
+  figcaption { margin-top: 0.45rem; font-size: 0.825rem; color: var(--steel); }
+
+  .placeholder {
+    border-style: dashed !important; border-color: var(--navy) !important;
+    background-color: var(--page) !important;
+    background-image:
+      linear-gradient(var(--line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--line) 1px, transparent 1px);
+    background-size: 24px 24px;
+    display: grid !important; place-items: center;
+    color: var(--steel); font-size: 0.85rem; text-align: center; padding: 1rem;
+  }
+  .placeholder strong { color: var(--navy); }
+
+  /* Writing: slightly smaller than body text so the columns stay compact */
+  .writeup, .overflow, .text { font-size: 0.925rem; line-height: 1.55; }
+  .writeup h3, .writeup h4, .overflow h3, .overflow h4, .text h4 { font-size: 0.975rem; font-weight: 700; margin: 0 0 0.25rem; }
+  .text h4 { margin-top: 1rem; }
+  .text > :first-child { margin-top: 0; }
+  .unit + .unit { margin-top: 0.6rem; }                 /* paragraph to paragraph */
+  .unit + .unit[data-head], .unit + .unit[data-pin] { margin-top: 1rem; }   /* before a new heading or figure */
+  .unit[data-head] + .unit[data-li], .unit[data-li] + .unit[data-li] { margin-top: 0.2rem; }  /* bullet to bullet */
+  .unit ul, .unit ol { margin: 0; }
+  .unit p + p, .unit ul + p, .unit ol + p, .text p + p, .text ul + p, .text ol + p { margin-top: 0.6rem; }
+  .writeup ul, .writeup ol, .overflow ul, .overflow ol, .text ul, .text ol { padding-left: 1.2rem; }
+  .writeup li, .overflow li, .text li { margin-bottom: 0.2rem; }
+
+  .sub-foot { padding: 0 1.75rem 1.25rem; }
+  .sub-foot a, .back { font-size: 0.875rem; color: var(--steel); }
+  .sub-foot a:hover, .back:hover { color: var(--accent); }
+  .project-foot {
+    display: flex; flex-wrap: wrap; gap: 0.75rem; justify-content: space-between; align-items: center;
+    padding: 1rem 1.75rem 1.4rem; border-top: 1px solid var(--line);
+  }
+  .project-foot .btns { display: flex; flex-wrap: wrap; gap: 0.65rem; }
+
+  /* ---------- Skills ---------- */
+  .skills { padding-top: 0.5rem; padding-bottom: 3rem; }
+  .skills-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); border-top: 2px solid var(--navy); }
+  .skills-grid div { padding: 0.9rem 1.25rem 0.9rem 0; }
+  .skills-grid h3 { font-size: 0.875rem; color: var(--steel); font-weight: 600; margin-bottom: 0.2rem; }
+
+  footer { background: var(--navy); color: var(--sky); padding: 2.25rem 0 2.75rem; font-size: 0.925rem; }
+  footer a { color: #fff; }
+
+  /* ---------- Full-size image viewer ---------- */
+  #viewer { border: none; padding: 0; background: transparent; max-width: 96vw; max-height: 94vh; margin: auto; }
+  #viewer::backdrop { background: rgba(10,35,66,0.9); }
+  #viewer img { display: block; max-width: 96vw; max-height: 94vh; object-fit: contain; background: #fff; cursor: zoom-out; }
+
+  /* ---------- Tablet and phone ---------- */
+  @media (max-width: 860px) {
+    .split, .stage { grid-template-columns: 1fr; }
+    .project-head { grid-template-columns: 1fr; }
+    .title-block { border-left: none; border-top: 1px solid var(--line); }
+  }
+  @media (max-width: 640px) {
+    .topbar nav { gap: 1rem; }
+    .index-grid, .pair { grid-template-columns: 1fr; }
+    .content { padding: 1.1rem 1.1rem 1.4rem; }
+    .project-head .heading, .sub-head { padding-left: 1.1rem; padding-right: 1.1rem; }
+    .skills-used { margin-left: -1.1rem; margin-right: -1.1rem; padding-left: 1.1rem; padding-right: 1.1rem; }
+    .sub-foot, .project-foot { padding-left: 1.1rem; padding-right: 1.1rem; }
+  }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="wrap">
+    <a class="name" href="#top">Andrew Tan</a>
+    <nav>
+      <a href="#projects">Projects</a>
+      <a href="#skills">Skills</a>
+      <a href="#contact">Contact</a>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+
+  <!-- ==================== HERO ==================== -->
+  <section class="hero">
+    <div class="wrap">
+      <p class="eyebrow">Engineering Portfolio</p>
+      <h1>Andrew Tan</h1>
+      <p class="discipline">Mechanical and space engineering student</p>
+      <p class="intro">
+        I design, build and test flight structures. Most of my time outside class goes into
+        Galah, the USYD Rocketry Team's 10,000 ft hybrid launch vehicle, where I took the
+        aft truss from load definition and CAD through FEA to destructive testing.
+      </p>
+      <dl class="facts">
+        <div><dt>Degree</dt><dd>Bachelor of Engineering Honours (Mechanical with Space)</dd></div>
+        <div><dt>University</dt><dd>The University of Sydney, Dalyell Scholar, Feb 2024 to Nov 2027</dd></div>
+        <div><dt>Citizenship</dt><dd>Australian, New Zealand and Dutch</dd></div>
+      </dl>
+      <div class="contact">
+        <a class="btn primary" href="#projects">See projects</a>
+        <a class="btn" href="files/Andrew-Tan-Resume.pdf" target="_blank">Resume</a>
+        <a class="btn" href="https://www.linkedin.com/in/andrew-tan-b450962b7/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+        <a class="btn" href="mailto:andrew_tan1@icloud.com">Email</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== PROJECT BUTTONS ==================== -->
+  <section class="index wrap" id="projects">
+    <h2 class="section-title">Projects</h2>
+    <div class="index-grid">
+      <div class="tile tile-wide">
+        <a class="tile-main" href="#galah">
+          <span class="title">Galah 2026 rocket</span>
+          <span class="summary">Designing, simulating and testing the aft truss for the USYD Rocketry Team's 10,000 ft hybrid launch vehicle.</span>
+        </a>
+        <ul class="sublinks">
+          <li><a href="#truss-design">Design and optimisation</a></li>
+          <li><a href="#truss-fea">FEA simulation</a></li>
+          <li><a href="#truss-testing">Destructive testing</a></li>
+        </ul>
+      </div>
+      <a class="tile" href="#pneumatic-engine">
+        <span class="title">Pneumatic engine</span>
+        <span class="summary">Two-cylinder, double-acting engine with a "dog bone" sliding valve, designed in SolidWorks and machined on the lathe, mill and drill press.</span>
+        <span class="tags">SolidWorks, lathe, mill</span>
+      </a>
+      <a class="tile" href="#mission-modelling">
+        <span class="title">Space mission modelling</span>
+        <span class="summary">Python orbit tools for a Molniya satellite with J2 perturbations, and the Parker Solar Probe's hyperbolic escape from Earth.</span>
+        <span class="tags">Python, orbital mechanics</span>
+      </a>
+    </div>
+  </section>
+
+  <div class="wrap">
+
+    <!-- ==================== GALAH: AFT TRUSS ==================== -->
+    <article class="project" id="galah">
+      <div class="project-head">
+        <div class="heading">
+          <h2>Galah 2026 rocket: aft truss</h2>
+          <p class="subtitle">USYD Rocketry Team, 10,000 ft hybrid launch vehicle</p>
+          <div class="skills-used">
+            <span class="skills-label">Skills</span>
+            <ul>
+              <li>Onshape</li>
+              <li>ANSYS</li>
+              <li>MATLAB</li>
+              <li>Static and dynamic testing</li>
+              <li>Composite wet layup and vacuum bagging</li>
+            </ul>
+          </div>
+        </div>
+        <dl class="title-block">
+          <dt>Role</dt>  <dd>Flight Systems Engineer</dd>
+          <dt>Part</dt>  <dd>Aft truss, 6061-T6 aluminium</dd>
+          <dt>Dates</dt> <dd>Aug 2025 to Oct 2026</dd>
+          <dt>Tools</dt> <dd>Onshape, ANSYS 2024 R1, Instron 5567</dd>
+        </dl>
+      </div>
+
+      <!-- Launch video beside the overview -->
+      <div class="content">
+        <div class="stage">
+          <div class="stack">
+            <figure class="video">
+              <video controls muted loop playsinline preload="metadata">
+                <source src="videos/galah_launch_video.mp4" type="video/mp4">
+                <source src="videos/galah_launch_video.mov" type="video/mp4" onerror="missingVideo(this)">
+              </video>
+              <figcaption>Galah launch.</figcaption>
+            </figure>
+          </div>
+          <div class="writeup">
+            <h3>Overview</h3>
+            <p>
+              Galah is the USYD Rocketry Team's 10,000 ft hybrid launch vehicle, with a simulated
+              apogee of about 11,500 ft. As a Flight Systems Engineer I designed its aft truss, the
+              structure joining the oxidiser tank to the combustion chamber.
+            </p>
+            <p>
+              Beyond the aft truss, I also designed the forward truss and the nose cone, avionics and
+              aft recovery bulkheads, helped design and iterate the chamber adapter plate, and was a
+              core member of the composite layup team for the airframe.
+            </p>
+            <p>
+              The three steps below follow the aft truss from requirements and concept selection,
+              through FEA, to breaking struts on a test machine.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ---------- Step 1 ---------- -->
+      <section class="sub" id="truss-design">
+        <div class="sub-head">
+          <h3>Aft Truss Design and Optimisation</h3>
+          <span class="meta">Step 1 of 3, Onshape</span>
+        </div>
+        <div class="content">
+          <div class="stage">
+            <div class="stack">
+              <figure class="render">
+                <img src="images/aft-truss-cad.png" alt="Onshape CAD model of the aft truss" onerror="missingImage(this)">
+                <figcaption>Aft truss CAD model in Onshape.</figcaption>
+              </figure>
+              <figure class="sheet">
+                <img src="images/aft-truss-drawing.png" alt="Engineering drawing of the aft truss strut" onerror="missingImage(this)">
+                <figcaption>Engineering drawing. Click to enlarge.</figcaption>
+              </figure>
+            </div>
+            <div class="writeup">
+              <h4>Requirements</h4>
+              <p>
+                The aft truss joins the oxidiser tank to the combustion chamber, through an adapter
+                plate that bridges their different diameters, and doubles as the coupler for the
+                boat tail. That fixes its outer diameter at 152.4 mm to match the boat tail and its
+                length at 6 inches, and means every load from the tank passes through it. It also
+                has to house the main oxidiser valve, flight computer, solenoid valve, battery,
+                datalogger and quick disconnect, with room to reach them with tools.
+              </p>
+              <h4>Load cases</h4>
+              <p>
+                Two cases drive the design: compression from about 4.1 kN of engine thrust during
+                boost, and combined axial and bending load from the 10 kN main parachute deployment.
+                The deployment angle is unknown, so I swept the recovery load across angles in
+                MATLAB: as the parachute pulls further off-axis, axial stress falls and bending
+                stress rises, and the combined stress peaks at around 70°.
+              </p>
+              <figure>
+                <img src="images/Matlab-recovery-angle.png" alt="MATLAB plot of axial, bending and combined truss stress against recovery angle, with combined stress peaking near 70 degrees" onerror="missingImage(this)">
+                <figcaption>Axial, bending and combined stress against parachute deployment angle.</figcaption>
+              </figure>
+              <h4>Concepts explored</h4>
+              <p>
+                I developed two concepts in a fully parameterised Onshape model. A webbed truss of
+                four diagonal strut pairs, machined as a single part, would have removed the
+                alignment problems of earlier multi-part trusses and handled torsion well. But its
+                thin, curved members left almost no flat faces to mount the datalogger and solenoid
+                valve, so the conventional straight-strut design won. The webbed concept is shown
+                under the button at the bottom of this step.
+              </p>
+              <h4>Optimisation</h4>
+              <p>
+                The key variable was the gap angle between struts, which sets tool access. A wider
+                gap needs thicker struts to hold the same 1.5 minimum safety factor, and beyond about
+                86° the required thickness climbs steeply, so 86° became the trade-off between access
+                and mass. Three struts came out lighter than four at the same gap angle.
+              </p>
+              <p>
+                The bolt flanges face outwards so a torque wrench reaches every bolt, an improvement
+                on the internal flanges of earlier trusses. The datalogger housing and solenoid valve
+                mount straight onto the struts with M3 screws, with the screw holes accounted for in
+                the strut strength.
+              </p>
+              <figure>
+                <img src="images/propulsion-interface-with-struts.png" alt="Onshape assembly of the aft truss struts with the solenoid valve and plumbing mounted between them" onerror="missingImage(this)">
+                <figcaption>The aft truss integrated with the propulsion system, with the solenoid valve and plumbing mounted between the struts.</figcaption>
+              </figure>
+            </div>
+          </div>
+
+          <!-- Webbed truss concept, hidden until the button is clicked -->
+          <details class="drawings">
+            <summary>Show the webbed truss concept</summary>
+            <figure class="reveal-figure">
+              <img src="images/webbed-truss-design.png" alt="Webbed aft truss concept in Onshape, isometric and front views, with four diagonal strut pairs machined as one part" loading="lazy" onerror="missingImage(this)">
+              <figcaption>My webbed truss concept: four diagonal strut pairs machined as a single part, in isometric and front views.</figcaption>
+            </figure>
+          </details>
+        </div>
+        <div class="sub-foot"><a href="#galah">Back to aft truss overview</a></div>
+      </section>
+
+      <!-- ---------- Step 2 ---------- -->
+      <section class="sub" id="truss-fea">
+        <div class="sub-head">
+          <h3>FEA simulation</h3>
+          <span class="meta">Step 2 of 3, ANSYS 2024 R1</span>
+        </div>
+        <div class="content">
+          <div class="stage">
+            <div class="stack">
+              <figure>
+                <img src="images/fea-safety-factor.png" alt="ANSYS safety factor plot showing a minimum of 1.70 at the fillet between strut web and end flange" onerror="missingImage(this)">
+                <figcaption>Tension load case: minimum safety factor of 1.70 at the web-to-flange fillet.</figcaption>
+              </figure>
+              <figure>
+                <img src="images/fea-deformation.png" alt="ANSYS total deformation plot of a truss strut, peaking at 0.90 mm at the loaded end" onerror="missingImage(this)">
+                <figcaption>Total deformation under tension, peaking at 0.90 mm.</figcaption>
+              </figure>
+            </div>
+            <div class="writeup">
+              <p>
+                To check the hand calculations, I modelled a single strut in ANSYS under the tension
+                load case, with one end flange fixed and the load applied through the other.
+              </p>
+              <h4>Results</h4>
+              <ul>
+                <li>Minimum safety factor of 1.70, at the fillet where the strut web meets the end flange, beside a bolt hole.</li>
+                <li>Maximum total deformation of 0.90 mm, at the loaded end.</li>
+              </ul>
+              <p>
+                The hand calculations in the design review put the critical case at a safety factor
+                of 1.91, on the tension side of the truss under side-on recovery load. The FEA
+                minimum of 1.70 still clears the 1.5 design target.
+              </p>
+              <!-- ADD, if the FEA used the same recovery load as the hand calculation: one sentence
+                   explaining the gap between 1.91 and 1.70 (e.g. the stress concentration at the
+                   fillet, which the hand calculation's uniform section can't capture). -->
+              <p>
+                I ran a mesh convergence study to make sure the results didn't depend on mesh size,
+                used the results to drive material selection, and wrote up the setup and results as
+                simulation documentation for the team.
+              </p>
+            </div>
+          </div>
+        </div>
+        <div class="sub-foot"><a href="#galah">Back to aft truss overview</a></div>
+      </section>
+
+      <!-- ---------- Step 3 ---------- -->
+      <section class="sub" id="truss-testing">
+        <div class="sub-head">
+          <h3>Destructive testing</h3>
+          <span class="meta">Step 3 of 3, Instron 5567</span>
+        </div>
+        <div class="content">
+          <div class="stage">
+            <div class="stack">
+              <figure class="photo" style="--focus: 68%">
+                <img src="images/test-static.jpg" alt="Aluminium truss strut bolted between end plates in an Instron 5567 test machine" onerror="missingImage(this)">
+                <figcaption>Static tension test of a truss strut on the Instron 5567.</figcaption>
+              </figure>
+            </div>
+            <div class="writeup">
+              <p>
+                The truss was designed to a 1.5 minimum safety factor, rather than something higher,
+                because it would be proven by destructive testing. I wrote the test procedure and
+                tested aluminium truss struts to failure. For the static test, the strut was bolted
+                between two end plates and pulled in tension through the machine's grips.
+              </p>
+              <p>
+                Across the static and dynamic tests I identified three failure modes: yield,
+                buckling and thread shear-out, the last being one of the fastener failure modes
+                checked in the design. I then compared the measured failure loads with the FEA
+                predictions to validate the design.
+              </p>
+              <!-- ADD: the static failure load vs the FEA prediction (and % difference),
+                   and whether it failed at the fillet the FEA flagged. -->
+            </div>
+          </div>
+        </div>
+        <div class="sub-foot"><a href="#galah">Back to aft truss overview</a></div>
+      </section>
+
+      <div class="project-foot">
+        <div class="btns">
+          <!-- Paste the team's real website or LinkedIn page into href -->
+          <a class="btn" href="#">USYD Rocketry Team</a>
+        </div>
+        <a class="back" href="#projects">Back to projects</a>
+      </div>
+    </article>
+
+    <!-- SAVED FOR LATER: the previous Galah sections (rocket photo overview, chamber
+         adapter plate, layups with the wet layup video, etc.). Nothing inside <template>
+         shows on the site or downloads. To bring a section back, cut it out of here and
+         paste it above the "project-foot" div of the article above. -->
+    <template id="saved-galah-sections">
+    <!-- ==================== GALAH ==================== -->
+    <article class="project" id="galah">
+      <div class="project-head">
+        <div class="heading">
+          <h2>Galah 2026 rocket</h2>
+          <p class="subtitle">USYD Rocketry Team, 10,000 ft hybrid launch vehicle</p>
+        </div>
+        <dl class="title-block">
+          <dt>Role</dt>  <dd>Flight Systems Engineer</dd>
+          <dt>Team</dt>  <dd>USYD Rocketry Team</dd>
+          <dt>Dates</dt> <dd>Aug 2025 to present</dd>
+          <dt>Tools</dt> <dd>Onshape, ANSYS</dd>
+        </dl>
+      </div>
+
+      <!-- Overview: rocket photo beside the writing -->
+      <div class="content">
+        <div class="split">
+          <figure>
+            <img src="images/galah-rocket.jpg" alt="The Galah rocket" onerror="missingImage(this)">
+            <figcaption>Galah, the team's 2026 hybrid launch vehicle.</figcaption>
+          </figure>
+          <div class="writeup">
+            <h3>Overview</h3>
+            <p>
+              Galah is a hybrid-propellant rocket designed to reach 10,000 ft. As a Flight Systems
+              Engineer I work on the structures that hold the vehicle together: the truss between
+              the oxidiser tank and combustion chamber, the bulkheads, and the composite airframe.
+            </p>
+            <p>
+              I've followed my parts through the full cycle: designing them in Onshape, checking
+              them with FEA, building the composite sections by hand, and breaking test articles
+              to confirm the simulations were right.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ---------- Aft truss and chamber adapter plate ---------- -->
+      <section class="sub" id="aft-truss">
+        <div class="sub-head">
+          <h3>Aft truss and chamber adapter plate</h3>
+          <span class="meta">Onshape, ANSYS, 6061-T6 aluminium</span>
+        </div>
+        <div class="content">
+
+          <h4 class="part-title">Aft truss</h4>
+          <div class="pair">
+            <figure class="sheet">
+              <img src="images/aft-truss-cad.png" alt="Onshape CAD model of the aft truss" onerror="missingImage(this)">
+              <figcaption>CAD model in Onshape.</figcaption>
+            </figure>
+            <figure class="sheet">
+              <img src="images/aft-truss-drawing.png" alt="Engineering drawing of the aft truss" onerror="missingImage(this)">
+              <figcaption>Engineering drawing. Click to enlarge.</figcaption>
+            </figure>
+          </div>
+          <div class="text">
+            <p>
+              The aft truss is a three-strut 6061-T6 aluminium structure between the oxidiser tank
+              and the combustion chamber. It does two jobs at once: it is the structural load path
+              through that part of the rocket, and it acts as the body coupler joining the airframe
+              sections. I designed it in Onshape and used FEA to drive the material choice.
+            </p>
+          </div>
+
+          <h4 class="part-title">Chamber adapter plate</h4>
+          <div class="pair">
+            <figure class="sheet">
+              <img src="images/adapter-plate-cad.png" alt="Onshape CAD model of the chamber adapter plate" onerror="missingImage(this)">
+              <figcaption>CAD model in Onshape.</figcaption>
+            </figure>
+            <figure class="sheet">
+              <img src="images/adapter-plate-drawing.png" alt="Engineering drawing of the chamber adapter plate" onerror="missingImage(this)">
+              <figcaption>Engineering drawing. Click to enlarge.</figcaption>
+            </figure>
+          </div>
+          <div class="text">
+            <p>
+              I helped design and iterate the chamber adapter plate at the combustion chamber end
+              of the truss.
+              <!-- ADD: what it connects, what changed between iterations, and why -->
+            </p>
+            <h4>Also designed</h4>
+            <ul>
+              <li>Forward truss</li>
+              <li>Nose cone, avionics and aft recovery bulkheads</li>
+            </ul>
+          </div>
+        </div>
+        <div class="sub-foot"><a href="#galah">Back to Galah overview</a></div>
+      </section>
+
+      <!-- ---------- Layups ---------- -->
+      <section class="sub" id="layups">
+        <div class="sub-head">
+          <h3>Airframe, coupler and nose cone layups</h3>
+          <span class="meta">8HS fibreglass, DowAksa A-38 carbon twill, Ampreg 31 epoxy</span>
+        </div>
+        <div class="content">
+          <div class="pair">
+            <figure class="video">
+              <video controls muted loop playsinline preload="metadata">
+                <source src="videos/layup-wet.mp4" type="video/mp4">
+                <source src="videos/layup-wet.mov" type="video/mp4" onerror="missingVideo(this)">
+              </video>
+              <figcaption>Hand wet layup of a body tube and coupler.</figcaption>
+            </figure>
+            <figure>
+              <img src="images/layup-nosecone-vacuum.jpg" alt="Nose cone layup vacuum bagged for cure" onerror="missingImage(this)">
+              <figcaption>Nose cone vacuum bagged for cure.</figcaption>
+            </figure>
+          </div>
+          <div class="text">
+            <p>
+              I was a core member of the layup team from start to finish, building the body tubes,
+              couplers, boat tail and nose cone for Galah.
+            </p>
+            <h4>Process</h4>
+            <ol>
+              <li>Prepared moulds with PVA release.</li>
+              <li>Cut plies to pattern.</li>
+              <li>Hand wet layup with Ampreg 31 epoxy, targeting a researched 60/40 fibre-to-resin ratio.</li>
+              <li>Vacuum bagged each part and monitored the cure cycle.</li>
+              <li>Inspected and trimmed each part after cure.</li>
+            </ol>
+          </div>
+          <!-- Large photo underneath the writing -->
+          <figure class="wide">
+            <img src="images/layup-body-tube-finished.jpg" alt="Finished composite body tube after cure and trimming" onerror="missingImage(this)">
+            <figcaption>Finished body tube layup.</figcaption>
+          </figure>
+        </div>
+        <div class="sub-foot"><a href="#galah">Back to Galah overview</a></div>
+      </section>
+
+      <!-- ---------- FEA ---------- -->
+      <section class="sub" id="fea">
+        <div class="sub-head">
+          <h3>FEA and ANSYS simulation</h3>
+          <span class="meta">ANSYS, mesh convergence studies</span>
+        </div>
+        <div class="content">
+          <div class="pair">
+            <figure class="render">
+              <img src="images/fea-stress.png" alt="ANSYS stress contour plot of the aft truss" onerror="missingImage(this)">
+              <figcaption>Stress results for the aft truss.</figcaption>
+            </figure>
+            <figure class="render">
+              <img src="images/fea-convergence.png" alt="Mesh convergence plot" onerror="missingImage(this)">
+              <figcaption>Mesh convergence study.</figcaption>
+            </figure>
+          </div>
+          <div class="text">
+            <p>
+              I ran the stress analysis on the truss, adapter plate and bulkheads in ANSYS, and
+              used the results to choose materials.
+            </p>
+            <p>
+              To make sure the answers didn't depend on the mesh, I ran mesh convergence studies
+              on each model. I then wrote up the simulation setup and results as documentation
+              the rest of the team could review and reuse.
+            </p>
+            <!-- ADD: load cases and boundary conditions, peak stress, and the minimum safety factor -->
+          </div>
+        </div>
+        <div class="sub-foot"><a href="#galah">Back to Galah overview</a></div>
+      </section>
+
+      <!-- ---------- Testing ---------- -->
+      <section class="sub" id="testing">
+        <div class="sub-head">
+          <h3>Destructive testing</h3>
+          <span class="meta">Static and dynamic test machines, aluminium truss struts</span>
+        </div>
+        <div class="content">
+          <div class="pair">
+            <figure>
+              <img src="images/test-rig.jpg" alt="Truss strut loaded in the test machine" onerror="missingImage(this)">
+              <figcaption>Strut loaded in the test machine.</figcaption>
+            </figure>
+            <figure>
+              <img src="images/test-failure.jpg" alt="Truss strut after failure" onerror="missingImage(this)">
+              <figcaption>Strut after testing to failure.</figcaption>
+            </figure>
+          </div>
+          <div class="text">
+            <p>
+              To check the FEA against reality, I tested the aluminium truss struts to failure on
+              static and dynamic machines, and wrote the test procedures myself.
+            </p>
+            <p>
+              I identified three failure modes across the tests: yield, buckling and thread
+              shear-out. I then compared the measured failure loads with my FEA predictions to
+              validate the design.
+            </p>
+            <!-- ADD: predicted vs measured failure load, and the % difference -->
+          </div>
+        </div>
+        <div class="sub-foot"><a href="#galah">Back to Galah overview</a></div>
+      </section>
+
+      <div class="project-foot">
+        <div class="btns">
+          <!-- Paste the team's real website or LinkedIn page into href -->
+          <a class="btn" href="#">USYD Rocketry Team</a>
+        </div>
+        <a class="back" href="#projects">Back to projects</a>
+      </div>
+    </article>
+
+    </template>
+
+    <!-- ==================== PNEUMATIC ENGINE ==================== -->
+    <article class="project" id="pneumatic-engine">
+      <div class="project-head">
+        <div class="heading">
+          <h2>Pneumatic engine</h2>
+          <p class="subtitle">Design and Construction of Mechanical Systems (MECH1400)</p>
+          <div class="skills-used">
+            <span class="skills-label">Skills</span>
+            <ul>
+              <li>SolidWorks</li>
+              <li>Lathe</li>
+              <li>Mill</li>
+              <li>Drill press</li>
+            </ul>
+          </div>
+        </div>
+        <dl class="title-block">
+          <dt>Date</dt>     <dd>Aug 2024 to Oct 2024</dd>
+          <dt>CAD</dt>      <dd>SolidWorks, AS1100 drawings</dd>
+          <dt>Workshop</dt> <dd>Lathe, mill, drill press</dd>
+        </dl>
+      </div>
+      <div class="content">
+        <div class="stage">
+          <div class="stack">
+            <figure class="render">
+              <img src="images/pneumatic-cad.png" alt="SolidWorks CAD model of the pneumatic engine" onerror="missingImage(this)">
+              <figcaption>SolidWorks CAD model.</figcaption>
+            </figure>
+            <figure class="photo">
+              <img src="images/pneumatic-real.jpg" alt="The finished pneumatic engine" onerror="missingImage(this)">
+              <figcaption>The finished engine.</figcaption>
+            </figure>
+          </div>
+          <div class="writeup">
+            <h3>Brief</h3>
+            <p>
+              Design and build a small compressed-air reciprocating engine from a set list of
+              materials, in 24 workshop hours, running on a constant 50 psi supply and fitting a
+              200 × 150 mm plywood base.
+            </p>
+            <h3>Design choices</h3>
+            <p>
+              A double-acting sliding-valve layout was chosen over wobbler and rocker designs, so
+              air drives the piston on both strokes. The "dog bone" valve, a brass rod with two
+              heads, switches which end of the power cylinder is fed and which is exhausted. Two
+              linked Ø80 mm flywheels keep the valve in time with the piston and smooth out the
+              uneven torque, sized as large as the base allowed since stored energy grows with the
+              square of the radius.
+            </p>
+            <ul>
+              <li>At a wall-to-bore ratio of 0.55 the cylinders are thick-walled, so Lamé's equations apply: a hoop stress of 446 kPa against mild steel's 320 MPa yield strength.</li>
+              <li>Grashof's formula gives a minimum piston head thickness of 0.35 mm; the heads are 10 mm.</li>
+              <li>Brass for the piston and valve, since brass on steel has lower friction than steel on steel.</li>
+            </ul>
+            <h3>From CAD to hardware</h3>
+            <ul>
+              <li>Detail drawings to AS1100 hold ±0.4 mm generally, tightening to ±0.1 mm on the bores and rods that slide against each other.</li>
+              <li>The square cylinder bars were centred in a four-jaw chuck by clocking each face, drilled in steps of 8, 12, 15 and 18.5 mm, then reamed to 19.05 mm for a sliding fit.</li>
+              <li>The brass piston and valve were turned from 19.05 mm bar down to 8 mm rods, leaving 10 mm heads.</li>
+              <li>End plates were milled from 8 mm to 6 mm in cuts of 0.5 mm or less, to a 3.2 µm finish that seals flat against the cylinder.</li>
+            </ul>
+            <h3>What I learnt</h3>
+            <ul>
+              <li><strong>Time management.</strong> Workshop hours were the real constraint, and every hour spent settling the design in the workshop came out of machining time. I now fix the design and sizing before workshop time starts, and plan the machining against a Gantt chart.</li>
+              <li><strong>Precision compounds.</strong> End plates that came off the mill out of parallel had to be remade, bolt holes scribed one by one wouldn't line up until one was drilled and bolted first as a datum for the rest, and one slightly misaligned thread left a flywheel sitting off-square.</li>
+              <li><strong>Simplicity pays.</strong> Every extra part is another tolerance to hold. A twin inline wobbler, which times its ports by pivoting the cylinder itself, would have been quicker to make for a similar result.</li>
+            </ul>
+            <!-- ADD a sentence on the result: did it run, and how well? -->
+            <figure class="sheet">
+              <img src="images/pneumatic-assembly-drawing.png" alt="AS1100 assembly drawing of the pneumatic engine with sections and parts list" onerror="missingImage(this)">
+              <figcaption>Assembly drawing with sections and parts list. Click to enlarge.</figcaption>
+            </figure>
+          </div>
+        </div>
+
+        <!-- All detail drawings, hidden until the button is clicked -->
+        <details class="drawings">
+          <summary>Show all 15 detail drawings</summary>
+          <div class="drawing-grid">
+            <figure>
+              <img src="pneumatic-engine-drawings/cylinder-valve.png" alt="Detail drawing: Cylinder, valve" loading="lazy" onerror="missingImage(this)">
+              <figcaption>Cylinder, valve (4-1)</figcaption>
+            </figure>
+            <figure>
+              <img src="pneumatic-engine-drawings/cylinder-piston.png" alt="Detail drawing: Cylinder, piston" loading="lazy" onerror="missingImage(this)">
+              <figcaption>Cylinder, piston (4-2)</figcaption>
+            </figure>
+            <figure>
+              <img src="pneumatic-engine-drawings/end-plate-rear.png" alt="Detail drawing: End plate, rear" loading="lazy" onerror="missingImage(this)">
+              <figcaption>End plate, rear (4-3)</figcaption>
+            </figure>
+            <figure>
+              <img src="pneumatic-engine-drawings/end-plate-front.png" alt="Detail drawing: End plate, front" loading="lazy" onerror="missingImage(this)">
+              <figcaption>End plate, front (4-4)</figcaption>
+            </figure>
+            <figure>
+              <img src="pneumatic-engine-drawings/piston.png" alt="Detail drawing: Piston" loading="lazy" onerror="missingImage(this)">
+              <figcaption>Piston (4-5)</figcaption>
+            </figure>
+            <figure>
+              <img src="pneumatic-engine-drawings/crank-rod.png" alt="Detail drawing: Crank rod" loading="lazy" onerror="missingImage(this)">
+              <figcaption>Crank rod (4-6)</figcaption>
+            </figure>
+            <figure>
+              <img src="pneumatic-engine-drawings/flywheel-valve.png" alt="Detail drawing: Flywheel, valve" loading="lazy" onerror="missingImage(this)">
+              <figcaption>Flywheel, valve (4-7)</figcaption>
+            </figure>
+            <figure>
+              <img src="pneumatic-engine-drawings/flywheel-piston.png" alt="Detail drawing: Flywheel, piston" loading="lazy" onerror="missingImage(this)">
+              <figcaption>Flywheel, piston (4-8)</figcaption>
+            </figure>
+            <figure>
+              <img src="pneumatic-engine-drawings/valve.png" alt="Detail drawing: Valve" loading="lazy" onerror="missingImage(this)">
+              <figcaption>Valve (4-9)</figcaption>
+            </figure>
+            <figure>
+              <img src="pneumatic-engine-drawings/flywheel-conrod.png" data-alts="pneumatic-engine-drawings/flywheel-conrod.ong" alt="Detail drawing: Flywheel conrod" loading="lazy" onerror="missingImage(this)">
+              <figcaption>Flywheel conrod (4-10)</figcaption>
+            </figure>
+            <figure>
+              <img src="pneumatic-engine-drawings/flywheel-mount.png" alt="Detail drawing: Flywheel mount" loading="lazy" onerror="missingImage(this)">
+              <figcaption>Flywheel mount (4-11)</figcaption>
+            </figure>
+            <figure>
+              <img src="pneumatic-engine-drawings/equal-angle.png" alt="Detail drawing: Equal angle" loading="lazy" onerror="missingImage(this)">
+              <figcaption>Equal angle (4-12)</figcaption>
+            </figure>
+            <figure>
+              <img src="pneumatic-engine-drawings/cylinder-base.png" alt="Detail drawing: Cylinder base" loading="lazy" onerror="missingImage(this)">
+              <figcaption>Cylinder base (4-13)</figcaption>
+            </figure>
+            <figure>
+              <img src="pneumatic-engine-drawings/connecting-plate.png" alt="Detail drawing: Connecting plate" loading="lazy" onerror="missingImage(this)">
+              <figcaption>Connecting plate (4-14)</figcaption>
+            </figure>
+            <figure>
+              <img src="pneumatic-engine-drawings/equal-angle-small.png" alt="Detail drawing: Equal angle, small" loading="lazy" onerror="missingImage(this)">
+              <figcaption>Equal angle, small (4-16)</figcaption>
+            </figure>
+          </div>
+        </details>
+      </div>
+      <div class="project-foot">
+        <div class="btns"></div>
+        <a class="back" href="#projects">Back to projects</a>
+      </div>
+    </article>
+
+    <!-- ==================== SPACE MISSION MODELLING ==================== -->
+    <article class="project" id="mission-modelling">
+      <div class="project-head">
+        <div class="heading">
+          <h2>Space mission modelling</h2>
+          <p class="subtitle">Space Engineering 1 (AERO2705)</p>
+          <div class="skills-used">
+            <span class="skills-label">Skills</span>
+            <ul>
+              <li>Python</li>
+            </ul>
+          </div>
+        </div>
+        <dl class="title-block">
+          <dt>Date</dt>     <dd>Sep 2025</dd>
+          <dt>Language</dt> <dd>Python</dd>
+          <dt>Missions</dt> <dd>Molniya orbit, Parker Solar Probe escape</dd>
+        </dl>
+      </div>
+      <div class="content">
+        <div class="stage">
+          <div class="stack">
+            <figure class="render">
+              <img src="images/Ground_Tracks_for_Molniya_Orbit__1_period_.png" data-alts="images/Ground%20Tracks%20for%20Molniya%20Orbit%20(1%20period).png" alt="Ground track of a Molniya orbit over one period, reaching about 63 degrees north" onerror="missingImage(this)">
+              <figcaption>Molniya ground track over one orbital period.</figcaption>
+            </figure>
+            <figure class="render">
+              <img src="images/Ground_Track_Comparison__60_Days_with_final_4_days_plotted_.png" data-alts="images/Ground%20Track%20Comparison%20(60%20Days%20with%20final%204%20days%20plotted).png" alt="Molniya ground tracks after 60 days with and without J2 perturbations, showing westward drift" onerror="missingImage(this)">
+              <figcaption>After 60 days, the J2 ground track (green) has drifted west of the unperturbed track (red).</figcaption>
+            </figure>
+          </div>
+          <div class="writeup">
+            <h4>Brief</h4>
+            <p>
+              Build Python tools to predict and track two real mission trajectories: a Molniya
+              communications satellite in a highly elliptical orbit, and NASA's Parker Solar Probe
+              leaving Earth on a hyperbolic escape trajectory.
+            </p>
+            <h4>Molniya orbit and ground tracks</h4>
+            <p>
+              From the perigee and apogee altitudes I derived the orbit (eccentricity 0.74,
+              semi-major axis 26,561 km, period 11.97 hours), then solved Kepler's equation with a
+              Newton–Raphson solver to a 1 × 10⁻⁸ tolerance, typically converging in 3 to 4
+              iterations. Each position was rotated from the perifocal frame into Earth-centred
+              inertial and then Earth-fixed coordinates, with an iterative WGS-84 solver for
+              geodetic latitude, to plot the ground tracks.
+            </p>
+            <p>
+              Adding J2 perturbations from Earth's oblateness moved the ground track west by about
+              0.15° per day, clearly visible after 60 days. Over longer missions, that drift means
+              continuous coverage needs orbit corrections or more satellites.
+            </p>
+            <h4>Parker Solar Probe escape</h4>
+            <p>
+              For the hyperbolic case (eccentricity 2.00, 13.0 km/s at a 700 km perigee), a
+              hyperbolic Kepler solver tracked the probe until it leaves Earth's sphere of influence,
+              about 33.2 hours after perigee at 7.56 km/s. Injection error analysis showed a 1% speed
+              error shifts the exit point by about 403 km, against about 2 km for a 1° pointing error,
+              a significant miss when targeting a Venus flyby.
+            </p>
+            <h4>Universal variables</h4>
+            <p>
+              I also critiqued a legacy orbit classifier built on eccentricity thresholds, showing how
+              floating-point noise near the parabolic boundary can flip it between solvers, and why
+              the universal variables method avoids that by handling every orbit type in one
+              formulation.
+            </p>
+          </div>
+        </div>
+      </div>
+      <div class="project-foot">
+        <div class="btns">
+          <a class="btn" href="https://github.com/your-username/space-mission-modelling">View code</a>
+        </div>
+        <a class="back" href="#projects">Back to projects</a>
+      </div>
+    </article>
+  </div>
+
+  <!-- ==================== SKILLS ==================== -->
+  <section class="skills wrap" id="skills">
+    <h2 class="section-title">Skills</h2>
+    <div class="skills-grid">
+      <div><h3>Design and analysis</h3><p>Onshape, SolidWorks, ANSYS, OpenRocket</p></div>
+      <div><h3>Programming</h3><p>Python, MATLAB, Excel</p></div>
+      <div><h3>Hands-on</h3><p>Composite wet layup and vacuum bagging, lathe, mill, drill press, static and dynamic testing</p></div>
+    </div>
+  </section>
+
+  <!-- ==================== CONTACT ==================== -->
+  <section class="skills wrap" id="contact">
+    <h2 class="section-title">Contact</h2>
+    <div class="skills-grid">
+      <div>
+        <h3>Email</h3>
+        <p><a href="mailto:andrew_tan1@icloud.com">andrew_tan1@icloud.com</a></p>
+      </div>
+      <div>
+        <h3>Phone</h3>
+        <p><a href="tel:+61426534677">0426 534 677</a></p>
+      </div>
+      <div>
+        <h3>LinkedIn</h3>
+        <p><a href="https://www.linkedin.com/in/andrew-tan-b450962b7/" target="_blank" rel="noopener noreferrer">Andrew Tan</a></p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>© 2026 Andrew Tan</p>
+  </div>
+</footer>
+
+<!-- Click any project image to see it full size -->
+<dialog id="viewer" aria-label="Full-size image"><img alt=""></dialog>
+<script>
+  var viewer = document.getElementById('viewer');
+  var viewerImg = viewer.querySelector('img');
+  document.querySelectorAll('.project figure img').forEach(function (img) {
+    img.tabIndex = 0;
+    function open() { viewerImg.src = img.src; viewerImg.alt = img.alt; viewer.showModal(); }
+    img.addEventListener('click', open);
+    img.addEventListener('keydown', function (e) { if (e.key === 'Enter') open(); });
+  });
+  viewer.addEventListener('click', function () { viewer.close(); });
+
+  /* Drawings button label switches between Show and Hide */
+  document.querySelectorAll('details.drawings').forEach(function (d) {
+    var label = d.querySelector('summary');
+    var showText = label.textContent;
+    d.addEventListener('toggle', function () {
+      label.textContent = d.open ? showText.replace('Show', 'Hide') : showText;
+    });
+  });
+
+  var calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ============================================================
+     COLUMN BALANCING
+     In each image/writing section, the writing is split into blocks
+     (a heading plus its paragraphs, or a single paragraph). If the
+     writing runs longer than the images, blocks are moved from the
+     bottom of the right column to under the images until both sides
+     end level. If the images are taller, the image column narrows
+     instead. Figures in the writing column always stay on the right.
+     This reruns on resize and as images load, and is skipped on
+     phones where everything is one column anyway.
+     ============================================================ */
+  function makeUnits(stage) {
+    if (stage.dataset.ready) return;
+    var right = stage.querySelector('.writeup');
+    var kids = Array.prototype.slice.call(right.children);
+    var units = [], waiting = null;          /* waiting = unit holding a heading with nothing under it yet */
+    function newUnit(kind) {
+      var u = document.createElement('div');
+      u.className = 'unit';
+      u.setAttribute('data-' + kind, '');
+      units.push(u);
+      return u;
+    }
+    kids.forEach(function (el) {
+      var tag = el.tagName;
+      if (tag === 'H3' || tag === 'H4') { waiting = newUnit('head'); waiting.appendChild(el); return; }
+      if (tag === 'FIGURE') { newUnit('pin').appendChild(el); waiting = null; return; }
+      if (tag === 'UL' || tag === 'OL') {                  /* each bullet point can move on its own */
+        Array.prototype.slice.call(el.children).forEach(function (li) {
+          var list = document.createElement(tag);
+          list.appendChild(li);
+          if (waiting) { waiting.appendChild(list); waiting = null; }
+          else newUnit('li').appendChild(list);
+        });
+        return;
+      }
+      if (waiting) { waiting.appendChild(el); waiting = null; }
+      else newUnit('p').appendChild(el);
+    });
+    units.forEach(function (u, i) { u.dataset.i = i; right.appendChild(u); });
+    kids.forEach(function (el) { if (el.parentNode === right && !el.classList.contains('unit')) right.removeChild(el); });
+    var over = document.createElement('div');
+    over.className = 'overflow';
+    stage.querySelector('.stack').appendChild(over);
+    stage.dataset.ready = '1';
+  }
+
+  function h(el) { return el.getBoundingClientRect().height; }
+
+  function balance(stage) {
+    makeUnits(stage);
+    var left = stage.querySelector('.stack'), right = stage.querySelector('.writeup');
+    var over = left.querySelector('.overflow');
+    var units = Array.prototype.slice.call(stage.querySelectorAll('.unit'))
+      .sort(function (a, b) { return a.dataset.i - b.dataset.i; });
+    var movable = units.filter(function (u) { return !u.hasAttribute('data-pin'); });
+    var figures = left.querySelectorAll(':scope > figure').length;
+    var croppable = left.querySelector(':scope > figure.photo, :scope > figure.video') !== null;
+
+    function layout(m, row, f, crop) {
+      units.forEach(function (u) { right.appendChild(u); });          /* original order */
+      if (crop) stage.style.setProperty('--crop', crop); else stage.style.removeProperty('--crop');
+      for (var k = 0; k < m; k++) {                                    /* move the last m blocks */
+        over.insertBefore(movable[movable.length - 1 - k], over.firstChild);
+      }
+      left.classList.toggle('stack-row', row);
+      stage.style.gridTemplateColumns = f ? 'minmax(0, ' + f + 'fr) minmax(0, ' + (1 - f) + 'fr)' : '';
+    }
+    function gap() { return Math.abs(h(left) - h(right)); }
+
+    layout(0, false, 0, null);
+    if (window.innerWidth <= 860) return;                              /* one column on small screens */
+
+    /* Try every combination and keep the most level one. Small penalties
+       keep the layout close to normal when two options are nearly equal. */
+    var best = null;
+    var cropCost = { '4 / 3': 10, '16 / 9': 25 };
+    function score(m, row, f, crop) {
+      layout(m, row, f, crop);
+      var sc = gap() + 200 * Math.abs(f - 0.4) + 6 * m + (row ? 20 : 0) + (crop ? cropCost[crop] : 0);
+      if (!best || sc < best.sc) best = { sc: sc, m: m, row: row, f: f, crop: crop };
+      return sc;
+    }
+    var maxMove = Math.max(0, movable.length - 1);
+    var options = [];
+    for (var m = 0; m <= maxMove; m++) options.push([m, false, null]);
+    if (figures >= 2) options.push([0, true, null]);                  /* images side by side */
+    if (croppable) { options.push([0, false, '4 / 3']); options.push([0, false, '16 / 9']); }
+    options.forEach(function (o) {
+      var localBest = null;
+      for (var f = 0.25; f <= 0.551; f += 0.05) {
+        var sc = score(o[0], o[1], f, o[2]);
+        if (!localBest || sc < localBest.sc) localBest = { sc: sc, f: f };
+      }
+      [0.025, 0.0125].forEach(function (step) {                        /* refine around the best width */
+        var c = localBest.f;
+        [c - step, c + step].forEach(function (f2) {
+          if (f2 < 0.25 || f2 > 0.55) return;
+          var sc = score(o[0], o[1], f2, o[2]);
+          if (sc < localBest.sc) localBest = { sc: sc, f: f2 };
+        });
+      });
+    });
+    layout(best.m, best.row, best.f, best.crop);
+  }
+
+  var balanceTimer;
+  function balanceAll() {
+    clearTimeout(balanceTimer);
+    balanceTimer = setTimeout(function () {
+      document.querySelectorAll('.stage').forEach(balance);
+    }, 120);
+  }
+  window.balanceAll = balanceAll;
+  balanceAll();
+  window.addEventListener('resize', balanceAll);
+  window.addEventListener('load', balanceAll);
+  document.addEventListener('load', function (e) {          /* any image finishing loading */
+    if (e.target.tagName === 'IMG' || e.target.tagName === 'VIDEO') balanceAll();
+  }, true);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(balanceAll);
+
+  /* Project videos start playing (muted) when scrolled into view and pause when scrolled away */
+  if (!calm && 'IntersectionObserver' in window) {
+    var watcher = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting) { e.target.play().catch(function () {}); } else { e.target.pause(); }
+      });
+    }, { threshold: 0.5 });
+    document.querySelectorAll('.project figure video').forEach(function (v) { watcher.observe(v); });
+  }
+</script>
+</body>
+</html>
 
