@@ -407,6 +407,11 @@
           <li><a href="#truss-testing">Destructive testing</a></li>
         </ul>
       </div>
+      <a class="tile" href="#maglev-control">
+        <span class="title">Maglev levitation control</span>
+        <span class="summary">Pole-placement state-feedback controller with a Luenberger observer, stabilising an open-loop unstable EMS maglev levitation gap in MATLAB/Simulink.</span>
+        <span class="tags">MATLAB/Simulink, control systems</span>
+      </a>
       <a class="tile" href="#pneumatic-engine">
         <span class="title">Pneumatic engine</span>
         <span class="summary">Two-cylinder, double-acting engine with a "dog bone" sliding valve, designed in SolidWorks and machined on the lathe, mill and drill press.</span>
@@ -868,6 +873,99 @@
     </article>
 
     </template>
+
+    <!-- ==================== MAGLEV LEVITATION CONTROL ==================== -->
+    <article class="project" id="maglev-control">
+      <div class="project-head">
+        <div class="heading">
+          <h2>Maglev levitation control</h2>
+          <p class="subtitle">Systems Dynamics and Control (AMME3500)</p>
+          <div class="skills-used">
+            <span class="skills-label">Skills</span>
+            <ul>
+              <li>MATLAB/Simulink</li>
+              <li>State-space control</li>
+              <li>Pole placement</li>
+              <li>Observer design</li>
+            </ul>
+          </div>
+        </div>
+        <dl class="title-block">
+          <dt>Date</dt>  <dd>May 2026</dd>
+          <dt>Plant</dt> <dd>Single-electromagnet EMS levitation module</dd>
+          <dt>Tools</dt> <dd>MATLAB/Simulink R2026b</dd>
+        </dl>
+      </div>
+      <div class="content">
+        <div class="stage">
+          <div class="stack">
+            <figure class="render">
+              <img src="images/maglev-pole-zero-map.png" alt="Pole-zero map showing the unstable open-loop pole in the right-half plane, with closed-loop controller and observer poles placed in the left-half plane" onerror="missingImage(this)">
+              <figcaption>The open-loop pole sits in the right-half plane; pole placement relocates the closed-loop and observer poles into the stable left-half plane.</figcaption>
+            </figure>
+            <figure class="render">
+              <img src="images/maglev-gap-response.png" alt="Simulated closed-loop levitation gap response for six bidirectional step references, all settling within 0.6 seconds with no visible overshoot" onerror="missingImage(this)">
+              <figcaption>Closed-loop gap response for six bidirectional step references, settling in 0.60 s.</figcaption>
+            </figure>
+          </div>
+          <div class="writeup">
+            <h3>Brief</h3>
+            <p>
+              Electromagnetic suspension (EMS) maglev trains are open-loop unstable: reducing the air
+              gap increases the magnetic attraction pulling the carriage further towards the rail, so
+              an uncorrected gap either collapses into the track or diverges into loss of suspension.
+              I designed and validated a state-feedback controller with an observer for a
+              single-electromagnet EMS levitation module, stabilising the gap to hold a nominal 10 mm
+              operating point against reference changes, passenger-load variation and track
+              disturbances.
+            </p>
+            <h3>Modelling and control design</h3>
+            <p>
+              Starting from Newton's second law and Kirchhoff's voltage law, I derived the coupled
+              nonlinear electromechanical model, in which magnetic force scales with the square of
+              coil current and inversely with the square of the air gap, and linearised it about the
+              10 mm operating point into a three-state system of gap, gap velocity and coil current
+              perturbations. Eigenvalue analysis found one open-loop pole at +61.7 per second, an
+              unstable mode with a 16 millisecond time constant, far faster than a human could correct
+              by hand, and confirmed the system fully reachable and observable from the gap sensor
+              alone.
+            </p>
+            <p>
+              I designed a pole-placement state-feedback controller, with dominant closed-loop poles
+              giving a damping ratio of 0.86 and a natural frequency of 7.25 rad/s, plus a feedforward
+              gain for zero steady-state error. Since gap velocity can't be measured directly without
+              amplifying sensor noise, I paired it with a Luenberger observer placed five times further
+              into the stable half-plane, combining both through the separation principle into a single
+              output-feedback law and implementing the full system, shown below, in Simulink.
+            </p>
+            <figure class="render">
+              <img src="images/maglev-simulink-model.png" alt="Simulink block diagram of the output-feedback controller, including the plant, Luenberger observer, state-feedback gain, feedforward gain and measurement sensor noise" onerror="missingImage(this)">
+              <figcaption>Simulink output-feedback model: plant, Luenberger observer, state-feedback gain, feedforward gain and sensor noise.</figcaption>
+            </figure>
+            <h3>Validation results</h3>
+            <ul>
+              <li>Six bidirectional step references (±0.5, ±1.0 and ±2.0 mm) settled in 0.60 s with 1.95% overshoot and zero steady-state error, against design targets of under 1 s and under 5%.</li>
+              <li>Fixed nominal gains held stability and zero steady-state error across ±20% passenger-load mass uncertainty (560 to 840 kg), with no re-tuning required.</li>
+              <li>A 2740 N impulsive track disturbance, representing a rail joint or surface irregularity, was fully rejected within a ±10 V control effort.</li>
+            </ul>
+            <h3>Limitations and future work</h3>
+            <p>
+              Sustained and pulse disturbances of the same magnitude pushed the required control
+              voltage past the amplifier's ±110 V limit, exposing the absence of integral action as
+              the controller's main limitation: pole placement alone cannot reject a constant
+              disturbance force without steady-state error once the plant leaves its linearised region.
+              I identified integral augmentation and gain scheduling across the gap's operating range as
+              the next steps towards a controller that holds up under realistic, sustained track
+              loading.
+            </p>
+          </div>
+        </div>
+      </div>
+      <div class="project-foot">
+        <div class="btns"></div>
+        <a class="back" href="#projects">Back to projects</a>
+      </div>
+    </article>
 
     <!-- ==================== PNEUMATIC ENGINE ==================== -->
     <article class="project" id="pneumatic-engine">
